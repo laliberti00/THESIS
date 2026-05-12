@@ -1,0 +1,43 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+*.egg
+*.egg-info/
+.eggs/
+build/
+dist/
+.Python
+*.pyd
+
+# Virtual environments
+venv/
+.venv/
+env/
+.env/
+ENV/
+
+# Local Cython build artefacts (only the original .pyx files are tracked)
+*.c
+*.cpp
+!topn_baselines_neurals/CythonCompiler/**/*.c
+!topn_baselines_neurals/CythonCompiler/**/*.cpp
+
+# Notebook checkpoints
+.ipynb_checkpoints/
+
+# OS noise
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+*.swp
+
+# Local experiment scratch outputs from our own scripts
+repro_check_results/
+*.tmp
+*.bak
+*.orig

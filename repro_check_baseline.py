@@ -1,0 +1,176 @@
+"""Reproducibility check for non-neural baselines on Shehzad's three DCCF datasets.
+
+Mirrors what `run_experiments_for_DCCF_original_baselines.py` does for the
+baseline branch (no DCCF training), but cleanly logs each model's results to
+`repro_check_results/<dataset>_<model>.txt`.
+
+Usage:
+    python repro_check_baseline.py --dataset gowalla --model RP3beta
+    python repro_check_baseline.py --dataset gowalla --model all
+"""
+
+from __future__ import annotations
+
+import argparse
+import sys
+import time
+from pathlib import Path
+
+import numpy as np
+
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+
+from topn_baselines_neurals.Data_manager.Gowalla_AmazonBook_Tmall_DCCF import (
+    Gowalla_AmazonBook_Tmall_DCCF,
+)
+from topn_baselines_neurals.Evaluation.Evaluator import EvaluatorHoldout
+from topn_baselines_neurals.Recommenders.GraphBased.P3alphaRecommender import P3alphaRecommender
+from topn_baselines_neurals.Recommenders.GraphBased.RP3betaRecommender import RP3betaRecommender
+from topn_baselines_neurals.Recommenders.KNN.ItemKNNCFRecommender import ItemKNNCFRecommender
+from topn_baselines_neurals.Recommenders.KNN.UserKNNCFRecommender import UserKNNCFRecommender
+from topn_baselines_neurals.Recommenders.NonPersonalizedRecommender import Random, TopPop
+
+# Best HP values as hard-coded in run_experiments_for_DCCF_original_baselines.py
+# (do NOT trust docs/tables_window/tables_window_DCCF.html — see DATA_INVENTORY.md).
+BEST_HP = {
+    "gowalla": {
+        "ItemKNN": {"topK": 508, "similarity": "cosine"},
+        "UserKNN": {"topK": 146, "similarity": "cosine"},
+        "P3alpha": {
+            "topK": 777,
+            "alpha": 1.087096950563704,
+            "normalize_similarity": False,
+        },
+        "RP3beta": {
+            "topK": 777,
+            "alpha": 0.5663562161452378,
+            "beta": 0.001085447926739258,
+            "normalize_similarity": True,
+        },
+    },
+    "amazonBook": {
+        "ItemKNN": {"topK": 125, "similarity": "cosine"},
+        "UserKNN": {"topK": 454, "similarity": "cosine"},
+        "P3alpha": {
+            "topK": 496,
+            "alpha": 0.41477903655656115,
+            "normalize_similarity": False,
+        },
+        "RP3beta": {
+            "topK": 496,
+            "alpha": 0.44477903655656115,
+            "beta": 0.5968193614337285,
+            "normalize_similarity": True,
+        },
+    },
+    "tmall": {
+        "ItemKNN": {"topK": 516, "similarity": "cosine"},
+        "UserKNN": {"topK": 454, "similarity": "cosine"},
+        "P3alpha": {"topK": 100, "alpha": 1, "normalize_similarity": False},
+        "RP3beta": {
+            "topK": 350,
+            "alpha": 0.7681732734954694,
+            "beta": 0.4181395996963926,
+            "normalize_similarity": True,
+        },
+    },
+}
+
+# Models to run by default ("all"). EASE^R intentionally skipped:
+# the dense (n_items × n_items) Gram matrix needs >16 GB RAM for our three datasets.
+DEFAULT_MODELS = ["Random", "TopPop", "ItemKNN", "UserKNN", "P3alpha", "RP3beta"]
+
+CLASS_MAP = {
+    "Random": Random,
+    "TopPop": TopPop,
+    "ItemKNN": ItemKNNCFRecommender,
+    "UserKNN": UserKNNCFRecommender,
+    "P3alpha": P3alphaRecommender,
+    "RP3beta": RP3betaRecommender,
+}
+
+
+def load(dataset: str):
+    data_path = (Path(__file__).resolve().parent / "data" / "DCCF" / dataset).resolve()
+    URM_train, URM_test = Gowalla_AmazonBook_Tmall_DCCF()._load_data_from_give_files(
+        data_path, validation=False
+    )
+    return URM_train, URM_test
+
+
+def run_one(dataset: str, model_name: str, URM_train, URM_test, out_dir: Path) -> dict:
+    print(f"\n>>> {dataset} / {model_name}")
+    rec_class = CLASS_MAP[model_name]
+    rec = rec_class(URM_train)
+    fit_params = BEST_HP.get(dataset, {}).get(model_name, {})
+
+    t0 = time.time()
+    rec.fit(**fit_params)
+    train_time = time.time() - t0
+
+    evaluator = EvaluatorHoldout(URM_test, [1, 5, 10, 20, 40, 50, 100], exclude_seen=True)
+    t0 = time.time()
+    results_df, results_str = evaluator.evaluateRecommender(rec)
+    eval_time = time.time() - t0
+
+    results_df["TrainingTime(s)"] = [train_time] + [0] * (results_df.shape[0] - 1)
+    results_df["EvalTime(s)"] = [eval_time] + [0] * (results_df.shape[0] - 1)
+
+    out_path = out_dir / f"{dataset}_{model_name}.txt"
+    results_df.to_csv(out_path, sep="\t", index=True, index_label="cutoff")
+    print(f"    Train {train_time:.1f}s | Eval {eval_time:.1f}s | -> {out_path.name}")
+    print("    " + results_str.replace("\n", "\n    "))
+
+    return {
+        "dataset": dataset,
+        "model": model_name,
+        "train_time_s": train_time,
+        "eval_time_s": eval_time,
+        "recall_at_20": float(results_df.loc[20, "RECALL"]),
+        "ndcg_at_20": float(results_df.loc[20, "NDCG"]),
+        "fit_params": fit_params,
+    }
+
+
+def main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--dataset", required=True, choices=["gowalla", "amazonBook", "tmall"])
+    parser.add_argument("--model", default="all", help="Model name, or 'all'")
+    parser.add_argument("--out-dir", default="repro_check_results")
+    args = parser.parse_args()
+
+    out_dir = Path(args.out_dir)
+    out_dir.mkdir(parents=True, exist_ok=True)
+
+    print(f"Loading {args.dataset}...")
+    t0 = time.time()
+    URM_train, URM_test = load(args.dataset)
+    print(f"Loaded in {time.time()-t0:.1f}s. URM_train nnz={URM_train.nnz}, URM_test nnz={URM_test.nnz}")
+
+    if args.model == "all":
+        models = DEFAULT_MODELS
+    else:
+        models = [args.model]
+
+    summary = []
+    for m in models:
+        try:
+            summary.append(run_one(args.dataset, m, URM_train, URM_test, out_dir))
+        except Exception as e:
+            print(f"!!! {args.dataset}/{m} failed: {type(e).__name__}: {e}")
+            summary.append({"dataset": args.dataset, "model": m, "error": str(e)})
+
+    print("\n=== SUMMARY ===")
+    for row in summary:
+        if "error" in row:
+            print(f"  {row['dataset']:>10s} / {row['model']:<10s}  ERROR  {row['error']}")
+        else:
+            print(
+                f"  {row['dataset']:>10s} / {row['model']:<10s}  "
+                f"R@20={row['recall_at_20']:.6f}  N@20={row['ndcg_at_20']:.6f}  "
+                f"train={row['train_time_s']:.1f}s eval={row['eval_time_s']:.1f}s"
+            )
+
+
+if __name__ == "__main__":
+    main()

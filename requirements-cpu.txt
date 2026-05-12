@@ -1,0 +1,27 @@
+# CPU-only environment for running the non-neural baselines:
+# Random, TopPop, ItemKNN, UserKNN, P3alpha, RP3beta, EASE^R.
+#
+# Tested on macOS arm64 (Apple Silicon M2) with Python 3.11.0.
+# Should work on Linux x86_64 / arm64 with any Python 3.9-3.12.
+#
+# Versions chosen to:
+#   - stay on numpy <2 (the framework uses np.in1d which was removed in 2.0)
+#   - stay on scipy <1.14 (compatible with numpy 1.x)
+#   - keep modern pandas / scikit-learn (Shehzad's pinned sklearn 0.24.2 does
+#     not build on Python 3.11; only sklearn.preprocessing.normalize is used
+#     from this package, so any 1.x release works).
+
+numpy<2
+scipy<1.14
+pandas<2.2
+scikit-learn
+scikit-optimize
+tqdm
+dill
+prettytable
+pyyaml
+psutil
+pympler
+networkx
+tables
+numba
