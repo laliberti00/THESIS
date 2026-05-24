@@ -202,6 +202,41 @@ python run_hyperparameter_search_baseline_DCCF_for_datasets.py --dataset gowalla
 
 100 trials × 5 models, multiprocessing. Hours on a laptop.
 
+### 6. Phase 2 — FM, CAMF and statistical validation
+
+Vanilla FM and CAMF (BPR-MF backbone, PyTorch CPU / Apple MPS):
+
+```bash
+python repro_check_baseline.py --dataset gowalla --model FM   --save-per-user
+python repro_check_baseline.py --dataset gowalla --model CAMF --save-per-user
+```
+
+Each produces a `repro_check_results/per_user/gowalla_<model>.npz` with the
+per-user metric arrays (Recall, NDCG, MAP, MRR, Precision at all cutoffs)
+needed by the statistical-validation pipeline. ~90 s on Apple M2.
+
+End-to-end statistical validation (descriptive table + Wilcoxon paired tests
++ Harmonic Mean P-value for multi-seed opponents + Holm correction):
+
+```bash
+# RP3β as pivot (default placeholder)
+python statistical_validation.py --dataset gowalla --metric RECALL --cutoff 20
+
+# FM as pivot (alternative placeholder)
+python statistical_validation.py --dataset gowalla --metric RECALL --cutoff 20 \
+    --placeholder fm \
+    --out-descr results_phase2/descriptive_fm.tsv \
+    --out-tests results_phase2/tests_fm.tsv
+```
+
+Outputs in `results_phase2/`:
+- `descriptive.tsv` — mean ± std + percentile bootstrap 95 % CI per model
+- `tests.tsv` — raw and Holm-adjusted p-values per primary comparison
+
+Methodology: see [STATISTICAL_PROTOCOL.md](STATISTICAL_PROTOCOL.md).
+Evaluator patch: see [EVALUATOR_PATCH.md](EVALUATOR_PATCH.md).
+Equivalence test for the patch: `python -m tests.test_evaluator_patch_equivalence`.
+
 ---
 
 ## What was verified in Phase 1

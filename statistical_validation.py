@@ -253,6 +253,49 @@ class Comparison:
     n_pseudo_seeds: int = 1
 
 
+def build_fm_placeholder_comparisons(per_user_dir: Path, dataset: str
+                                     ) -> list[Comparison]:
+    """Alternative placeholder using FM as model under test.
+
+    Closer in spirit to the Phase-3 layout (FM-situ vs others), but with
+    FM-vanilla in place of FM-situ. Useful to also exercise the script
+    when the pivot is a learned model (different per-user distribution)
+    rather than a deterministic graph baseline.
+    """
+    def p(name: str) -> Path:
+        return per_user_dir / f"{dataset}_{name}.npz"
+
+    fm = p("FM")
+    return [
+        Comparison(
+            name="primary_1__FM_vs_CAMF",
+            model_under_test_label="FM (vanilla)",
+            opponent_label="CAMF (vanilla, placeholder for FM-flat)",
+            model_npz=fm, opponent_npzs=[p("CAMF")],
+        ),
+        Comparison(
+            name="primary_2__FM_vs_RP3beta",
+            model_under_test_label="FM (vanilla)",
+            opponent_label="RP3β (placeholder for best non-neural)",
+            model_npz=fm, opponent_npzs=[p("RP3beta")],
+        ),
+        Comparison(
+            name="primary_3__FM_vs_DCCF_surrogate",
+            model_under_test_label="FM (vanilla)",
+            opponent_label="UserKNN ×5 (placeholder for DCCF, Gaussian-noise stub)",
+            model_npz=fm, opponent_npzs=[p("UserKNN")],
+            pseudo_seed_noise=0.01, n_pseudo_seeds=5,
+        ),
+        Comparison(
+            name="primary_4__FM_vs_BIGCF_surrogate",
+            model_under_test_label="FM (vanilla)",
+            opponent_label="TopPop ×5 (placeholder for BIGCF, Gaussian-noise stub)",
+            model_npz=fm, opponent_npzs=[p("TopPop")],
+            pseudo_seed_noise=0.005, n_pseudo_seeds=5,
+        ),
+    ]
+
+
 def build_placeholder_comparisons(per_user_dir: Path, dataset: str
                                   ) -> list[Comparison]:
     """The 4 placeholder comparisons that mimic the Phase 3 primaries.
@@ -333,9 +376,15 @@ def run(args):
     metric = args.metric.upper()
     cutoff = int(args.cutoff)
 
-    print(f"=== Statistical validation — {args.dataset} / {metric}@{cutoff} ===")
+    print(f"=== Statistical validation — {args.dataset} / {metric}@{cutoff} "
+          f"(placeholder={args.placeholder}) ===")
 
-    comps = build_placeholder_comparisons(per_user_dir, args.dataset)
+    if args.placeholder == "rp3beta":
+        comps = build_placeholder_comparisons(per_user_dir, args.dataset)
+    elif args.placeholder == "fm":
+        comps = build_fm_placeholder_comparisons(per_user_dir, args.dataset)
+    else:
+        raise ValueError(f"Unknown placeholder mode: {args.placeholder}")
 
     # -----------------------------------------------------------------------
     # Descriptive table
@@ -456,6 +505,12 @@ def main():
     parser.add_argument("--cutoff", default=20, type=int)
     parser.add_argument("--out-descr", default="results_phase2/descriptive.tsv")
     parser.add_argument("--out-tests", default="results_phase2/tests.tsv")
+    parser.add_argument("--placeholder", default="rp3beta",
+                        choices=["rp3beta", "fm"],
+                        help="Which placeholder pivot to use as 'model under test'. "
+                             "'rp3beta' is the deterministic-pivot config (default); "
+                             "'fm' uses the FMRecommender as pivot to also exercise a "
+                             "learned-model comparison path.")
     args = parser.parse_args()
     run(args)
 

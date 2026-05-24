@@ -30,8 +30,20 @@ from topn_baselines_neurals.Recommenders.KNN.ItemKNNCFRecommender import ItemKNN
 from topn_baselines_neurals.Recommenders.KNN.UserKNNCFRecommender import UserKNNCFRecommender
 from topn_baselines_neurals.Recommenders.NonPersonalizedRecommender import Random, TopPop
 
+# THESIS PHASE-2 ADD-ON: import the new BPR-MF based vanilla recommenders only
+# on demand (their torch dependency is optional for the non-neural baselines).
+def _import_FM():
+    from topn_baselines_neurals.Recommenders.FactorizationMachines.FMRecommender import FMRecommender
+    return FMRecommender
+
+def _import_CAMF():
+    from topn_baselines_neurals.Recommenders.CAMF.CAMFRecommender import CAMFRecommender
+    return CAMFRecommender
+
 # Best HP values as hard-coded in run_experiments_for_DCCF_original_baselines.py
 # (do NOT trust docs/tables_window/tables_window_DCCF.html — see DATA_INVENTORY.md).
+# FM and CAMF use modest defaults documented in their _BPRMFBase.HP_SEARCH_SPACE.
+# These are *not* the result of a Bayesian search — they will be tuned in Phase 3.
 BEST_HP = {
     "gowalla": {
         "ItemKNN": {"topK": 508, "similarity": "cosine"},
@@ -47,6 +59,12 @@ BEST_HP = {
             "beta": 0.001085447926739258,
             "normalize_similarity": True,
         },
+        "FM":   {"n_components": 64, "learning_rate": 0.01, "user_alpha": 1e-5,
+                 "item_alpha": 1e-5, "n_epochs": 10, "batch_size": 4096,
+                 "negative_sampling_seed": 2026},
+        "CAMF": {"n_components": 64, "learning_rate": 0.01, "user_alpha": 1e-5,
+                 "item_alpha": 1e-5, "n_epochs": 10, "batch_size": 4096,
+                 "negative_sampling_seed": 2026},
     },
     "amazonBook": {
         "ItemKNN": {"topK": 125, "similarity": "cosine"},
@@ -78,6 +96,8 @@ BEST_HP = {
 
 # Models to run by default ("all"). EASE^R intentionally skipped:
 # the dense (n_items × n_items) Gram matrix needs >16 GB RAM for our three datasets.
+# FM and CAMF are NOT in "all": they require torch, run slower, and are exercised
+# separately via --model FM / --model CAMF. Phase 3 will tune their HPs.
 DEFAULT_MODELS = ["Random", "TopPop", "ItemKNN", "UserKNN", "P3alpha", "RP3beta"]
 
 CLASS_MAP = {
@@ -87,7 +107,21 @@ CLASS_MAP = {
     "UserKNN": UserKNNCFRecommender,
     "P3alpha": P3alphaRecommender,
     "RP3beta": RP3betaRecommender,
+    # lazily resolved (avoid mandatory torch import for non-FM users)
+    "FM":      None,
+    "CAMF":    None,
 }
+
+
+def _resolve_class(name: str):
+    cls = CLASS_MAP[name]
+    if cls is None:
+        if name == "FM":
+            cls = _import_FM()
+        elif name == "CAMF":
+            cls = _import_CAMF()
+        CLASS_MAP[name] = cls
+    return cls
 
 
 def load(dataset: str):
@@ -101,7 +135,7 @@ def load(dataset: str):
 def run_one(dataset: str, model_name: str, URM_train, URM_test, out_dir: Path,
             save_per_user: bool = False) -> dict:
     print(f"\n>>> {dataset} / {model_name}{' (+per-user)' if save_per_user else ''}")
-    rec_class = CLASS_MAP[model_name]
+    rec_class = _resolve_class(model_name)
     rec = rec_class(URM_train)
     fit_params = BEST_HP.get(dataset, {}).get(model_name, {})
 

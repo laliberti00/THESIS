@@ -25,3 +25,8 @@ pympler
 networkx
 tables
 numba
+
+# Added in Phase 2 for the FM and CAMF baselines (BPR-MF backbone).
+# CPU-only inference is fine; if Apple Silicon is detected the
+# `_BPRMFBase` recommender automatically uses MPS for training.
+torch>=2.0
