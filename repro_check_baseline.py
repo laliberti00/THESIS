@@ -98,8 +98,9 @@ def load(dataset: str):
     return URM_train, URM_test
 
 
-def run_one(dataset: str, model_name: str, URM_train, URM_test, out_dir: Path) -> dict:
-    print(f"\n>>> {dataset} / {model_name}")
+def run_one(dataset: str, model_name: str, URM_train, URM_test, out_dir: Path,
+            save_per_user: bool = False) -> dict:
+    print(f"\n>>> {dataset} / {model_name}{' (+per-user)' if save_per_user else ''}")
     rec_class = CLASS_MAP[model_name]
     rec = rec_class(URM_train)
     fit_params = BEST_HP.get(dataset, {}).get(model_name, {})
@@ -108,7 +109,10 @@ def run_one(dataset: str, model_name: str, URM_train, URM_test, out_dir: Path) -
     rec.fit(**fit_params)
     train_time = time.time() - t0
 
-    evaluator = EvaluatorHoldout(URM_test, [1, 5, 10, 20, 40, 50, 100], exclude_seen=True)
+    evaluator = EvaluatorHoldout(
+        URM_test, [1, 5, 10, 20, 40, 50, 100],
+        exclude_seen=True, save_per_user=save_per_user,
+    )
     t0 = time.time()
     results_df, results_str = evaluator.evaluateRecommender(rec)
     eval_time = time.time() - t0
@@ -120,6 +124,23 @@ def run_one(dataset: str, model_name: str, URM_train, URM_test, out_dir: Path) -
     results_df.to_csv(out_path, sep="\t", index=True, index_label="cutoff")
     print(f"    Train {train_time:.1f}s | Eval {eval_time:.1f}s | -> {out_path.name}")
     print("    " + results_str.replace("\n", "\n    "))
+
+    # === Phase 2 add-on: dump per-user metrics to .npz ====================
+    if save_per_user:
+        per_user_dir = out_dir / "per_user"
+        per_user_dir.mkdir(parents=True, exist_ok=True)
+        # Each .npz holds one array per (cutoff, metric) keyed as
+        # "<metric>_<cutoff>" plus a "user_ids" array of the same length.
+        npz_payload = {"user_ids": evaluator.per_user_user_ids}
+        for cutoff in [1, 5, 10, 20, 40, 50, 100]:
+            for metric in evaluator.PER_USER_METRICS:
+                npz_payload[f"{metric}_{cutoff}"] = evaluator.per_user_metrics[cutoff][metric]
+        npz_path = per_user_dir / f"{dataset}_{model_name}.npz"
+        np.savez_compressed(npz_path, **npz_payload)
+        print(f"    per-user → {npz_path.relative_to(out_dir.parent)}  "
+              f"({len(evaluator.per_user_user_ids)} users × "
+              f"{len(evaluator.PER_USER_METRICS)} metrics × {len([1,5,10,20,40,50,100])} cutoffs)")
+    # ======================================================================
 
     return {
         "dataset": dataset,
@@ -137,6 +158,8 @@ def main():
     parser.add_argument("--dataset", required=True, choices=["gowalla", "amazonBook", "tmall"])
     parser.add_argument("--model", default="all", help="Model name, or 'all'")
     parser.add_argument("--out-dir", default="repro_check_results")
+    parser.add_argument("--save-per-user", action="store_true",
+                        help="Also dump per-user metrics to <out-dir>/per_user/*.npz")
     args = parser.parse_args()
 
     out_dir = Path(args.out_dir)
@@ -155,7 +178,8 @@ def main():
     summary = []
     for m in models:
         try:
-            summary.append(run_one(args.dataset, m, URM_train, URM_test, out_dir))
+            summary.append(run_one(args.dataset, m, URM_train, URM_test, out_dir,
+                                   save_per_user=args.save_per_user))
         except Exception as e:
             print(f"!!! {args.dataset}/{m} failed: {type(e).__name__}: {e}")
             summary.append({"dataset": args.dataset, "model": m, "error": str(e)})

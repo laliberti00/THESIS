@@ -15,7 +15,8 @@ from enum import Enum
 from topn_baselines_neurals.Utils.seconds_to_biggest_unit import seconds_to_biggest_unit
 from topn_baselines_neurals.Evaluation.metrics import precision, precision_recall_min_denominator, recall, MAP, MAP_MIN_DEN, MRR, HIT_RATE, ndcg, arhr_all_hits, \
     Novelty, Coverage_Item, Coverage_Item_HIT, Items_In_GT, _Metrics_Object, Coverage_User, Coverage_User_HIT, Users_In_GT, Gini_Diversity, Shannon_Entropy, Diversity_MeanInterList,\
-    Diversity_Herfindahl, AveragePopularity, Ratio_Diversity_Gini, Ratio_Diversity_Herfindahl, Ratio_Shannon_Entropy, Ratio_AveragePopularity, Ratio_Novelty
+    Diversity_Herfindahl, AveragePopularity, Ratio_Diversity_Gini, Ratio_Diversity_Herfindahl, Ratio_Shannon_Entropy, Ratio_AveragePopularity, Ratio_Novelty, \
+    average_precision, rr
 
 
 class EvaluatorMetrics(Enum):
@@ -198,15 +199,36 @@ class Evaluator(object):
 
     EVALUATOR_NAME = "Evaluator_Base_Class"
 
+    # === THESIS PATCH (Phase 2) =========================================
+    # Metrics whose per-user value is exposed when save_per_user=True.
+    # We keep this fixed list (rather than all metrics) because for these
+    # five the "per-user scalar" is well-defined; for F1/NOVELTY/COVERAGE_ITEM
+    # the notion is either derived (F1) or globally aggregated (the others).
+    PER_USER_METRICS = ("PRECISION", "RECALL", "NDCG", "MAP", "MRR")
+    # ====================================================================
+
     def __init__(self, URM_test, cutoff_list, min_ratings_per_user=1, exclude_seen=True,
                  diversity_object = None,
                  ignore_items = None,
                  ignore_users = None,
-                 verbose=True):
-
+                 verbose=True,
+                 save_per_user=False):
+        """
+        :param save_per_user: THESIS PATCH (Phase 2). When False (default) the
+            evaluator behaves exactly as upstream Shehzad et al. — aggregate
+            metrics only, no extra memory or compute. When True, every cutoff
+            also accumulates a numpy array of length n_users_evaluated for the
+            five metrics in PER_USER_METRICS, accessible after evaluation as
+            ``self.per_user_metrics[cutoff][metric_name]``. The vector of
+            evaluated user ids (same ordering) is in ``self.per_user_user_ids``.
+            Aggregate results in the returned ``results_df`` are bit-identical
+            to the save_per_user=False path; this is verified by an explicit
+            equivalence test (see EVALUATOR_PATCH.md).
+        """
         super(Evaluator, self).__init__()
 
         self.verbose = verbose
+        self.save_per_user = save_per_user  # THESIS PATCH
 
         if ignore_items is None:
             self.ignore_items_flag = False
@@ -265,7 +287,35 @@ class Evaluator(object):
         self._start_time_print = time.time()
         self._n_users_evaluated = 0
 
+        # === THESIS PATCH: lazily initialize per-user containers ============
+        if self.save_per_user:
+            # Python lists (cheap append) → converted to ndarray at the end.
+            self._per_user_lists = {
+                cutoff: {metric: [] for metric in self.PER_USER_METRICS}
+                for cutoff in self.cutoff_list
+            }
+            self._per_user_user_ids_list = []
+        # ====================================================================
+
         results_dict = self._run_evaluation_on_selected_users(recommender_object, self.users_to_evaluate)
+
+        # === THESIS PATCH: finalize per-user arrays =========================
+        if self.save_per_user:
+            self.per_user_user_ids = np.array(self._per_user_user_ids_list, dtype=np.int64)
+            self.per_user_metrics = {
+                cutoff: {
+                    metric: np.array(self._per_user_lists[cutoff][metric], dtype=np.float64)
+                    for metric in self.PER_USER_METRICS
+                }
+                for cutoff in self.cutoff_list
+            }
+            # invariant: length matches users-evaluated count
+            for cutoff in self.cutoff_list:
+                for metric in self.PER_USER_METRICS:
+                    assert len(self.per_user_metrics[cutoff][metric]) == self._n_users_evaluated, \
+                        f"per_user_metrics[{cutoff}][{metric}] length mismatch"
+            del self._per_user_lists, self._per_user_user_ids_list
+        # ====================================================================
 
 
         if self._n_users_evaluated > 0:
@@ -347,6 +397,11 @@ class Evaluator(object):
 
             self._n_users_evaluated += 1
 
+            # === THESIS PATCH: record this user's id for the per-user arrays
+            if self.save_per_user:
+                self._per_user_user_ids_list.append(int(test_user))
+            # ===============================================================
+
             for cutoff in self.cutoff_list:
 
                 results_current_cutoff = results_dict[cutoff]
@@ -354,14 +409,33 @@ class Evaluator(object):
                 is_relevant_current_cutoff = is_relevant[0:cutoff]
                 recommended_items_current_cutoff = recommended_items[0:cutoff]
 
-                results_current_cutoff[EvaluatorMetrics.PRECISION.value]            += precision(is_relevant_current_cutoff)
+                # --- per-user scalar metrics (computed identically to upstream) ---
+                user_precision = precision(is_relevant_current_cutoff)
+                user_recall    = recall(is_relevant_current_cutoff, relevant_items)
+                user_ndcg      = ndcg(recommended_items_current_cutoff, relevant_items, relevance=self.get_user_test_ratings(test_user), at=cutoff)
+
+                # Aggregate path (unchanged behaviour) ------------------------
+                results_current_cutoff[EvaluatorMetrics.PRECISION.value]            += user_precision
                 #results_current_cutoff[EvaluatorMetrics.PRECISION_RECALL_MIN_DEN.value]   += precision_recall_min_denominator(is_relevant_current_cutoff, len(relevant_items))
-                results_current_cutoff[EvaluatorMetrics.RECALL.value]               += recall(is_relevant_current_cutoff, relevant_items)
-                results_current_cutoff[EvaluatorMetrics.NDCG.value]                 += ndcg(recommended_items_current_cutoff, relevant_items, relevance=self.get_user_test_ratings(test_user), at=cutoff)
+                results_current_cutoff[EvaluatorMetrics.RECALL.value]               += user_recall
+                results_current_cutoff[EvaluatorMetrics.NDCG.value]                 += user_ndcg
                 #results_current_cutoff[EvaluatorMetrics.ARHR.value]                 += arhr_all_hits(is_relevant_current_cutoff)
 
                 results_current_cutoff[EvaluatorMetrics.MRR.value].add_recommendations(is_relevant_current_cutoff)
                 results_current_cutoff[EvaluatorMetrics.MAP.value].add_recommendations(is_relevant_current_cutoff, relevant_items)
+
+                # === THESIS PATCH: per-user accumulation (additive only) =====
+                if self.save_per_user:
+                    self._per_user_lists[cutoff]["PRECISION"].append(user_precision)
+                    self._per_user_lists[cutoff]["RECALL"].append(user_recall)
+                    self._per_user_lists[cutoff]["NDCG"].append(user_ndcg)
+                    # MAP and MRR are computed identically to the metric objects
+                    # but kept per-user. These two scalar functions are the same
+                    # ones the MAP/MRR _Metrics_Objects call internally — see
+                    # average_precision() and rr() in metrics.py.
+                    self._per_user_lists[cutoff]["MAP"].append(average_precision(is_relevant_current_cutoff))
+                    self._per_user_lists[cutoff]["MRR"].append(rr(is_relevant_current_cutoff))
+                # =============================================================
                 #results_current_cutoff[EvaluatorMetrics.MAP_MIN_DEN.value].add_recommendations(is_relevant_current_cutoff, relevant_items)
                 #results_current_cutoff[EvaluatorMetrics.HIT_RATE.value].add_recommendations(is_relevant_current_cutoff)
 
@@ -420,14 +494,16 @@ class EvaluatorHoldout(Evaluator):
                  diversity_object = None,
                  ignore_items = None,
                  ignore_users = None,
-                 verbose=True):
-
+                 verbose=True,
+                 save_per_user=False):
+        """THESIS PATCH: see Evaluator.__init__ docstring for save_per_user."""
 
         super(EvaluatorHoldout, self).__init__(URM_test_list, cutoff_list,
                                                diversity_object = diversity_object,
                                                min_ratings_per_user =min_ratings_per_user, exclude_seen=exclude_seen,
                                                ignore_items = ignore_items, ignore_users = ignore_users,
-                                               verbose = verbose)
+                                               verbose = verbose,
+                                               save_per_user = save_per_user)
 
 
 

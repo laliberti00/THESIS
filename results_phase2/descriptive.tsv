@@ -1,0 +1,6 @@
+model	n_users	mean	std	ci95_lo	ci95_hi	pct_zero	mean_across_seeds
+RP3β (pivot)	38234	0.245458	0.344263	0.242015	0.248866	0.538683	
+ItemKNN (placeholder for FM-flat)	38234	0.235463	0.340246	0.232023	0.238815	0.556154	
+P3α (placeholder for best non-neural)	38234	0.231430	0.337794	0.228035	0.234786	0.559842	
+UserKNN ×5 (placeholder for DCCF, Gaussian-noise stub)	38234	0.217258	0.327129	0.214003	0.220514	0.018387	True
+TopPop ×5 (placeholder for BIGCF, Gaussian-noise stub)	38234	0.027201	0.119483	0.025997	0.028444	0.029424	True
