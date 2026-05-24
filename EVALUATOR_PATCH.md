@@ -92,6 +92,28 @@ user_ids  = evaluator.per_user_user_ids                # np.ndarray (n_eval,)
 assert abs(recall_20.mean() - results_df.loc[20, "RECALL"]) < 1e-12
 ```
 
+### Pairing per `user_id` — contratto di consumo
+
+> **Regola.** Quando si confrontano due modelli con un paired test (es.
+> Wilcoxon signed-rank), gli array `per_user_metrics[A][cutoff][metric]`
+> e `per_user_metrics[B][cutoff][metric]` vanno appaiati **per `user_id`**,
+> non per posizione, *prima* di passarli al test.
+
+Due `EvaluatorHoldout` istanziati sullo stesso `URM_test` con gli stessi
+filtri (`min_ratings_per_user`, `ignore_users`) producono `user_ids`
+nello stesso ordine, perché iterano la lista deterministica
+`self.users_to_evaluate`. In questa situazione "stesso ordine" e "stesso
+pairing per user_id" coincidono. Se però si confrontano `.npz` provenienti
+da run diversi (macchine diverse, seed diversi che hanno scartato utenti
+cold differenti, eccetera), gli ordini possono divergere silenziosamente
+e produrre risultati paired-test sbagliati senza alcun errore di runtime.
+
+Lo script `statistical_validation.py` (vedi STATISTICAL_PROTOCOL.md §3,
+"Contratto di pairing per `user_id`") implementa l'allineamento via la
+funzione `align_two()` su ogni paired test, inclusi i sub-test per-seed
+dei modelli stocastici. Qualsiasi nuovo consumatore dei `per_user_metrics`
+deve rispettare lo stesso contratto.
+
 ### Metriche esposte per-utente
 
 `PRECISION`, `RECALL`, `NDCG`, `MAP`, `MRR`.

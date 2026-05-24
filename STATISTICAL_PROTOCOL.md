@@ -84,6 +84,36 @@ conclusioni arrivano in Phase 3 con il modello vero e i dati veri.
 - **Two-sided**: non assumiamo a priori la direzione dell'effetto. È
   prassi standard nei paper SIGIR / RecSys per evitare bias di reporting.
 
+### Contratto di pairing per `user_id` (regola di sicurezza)
+
+> **Regola.** Prima di passare due vettori a `scipy.stats.wilcoxon`, lo
+> script li allinea esplicitamente **per `user_id`**, non per posizione.
+> Cioè per ogni indice `i` deve valere che `vec_A[i]` e `vec_B[i]` sono
+> i valori della metrica per **lo stesso utente**.
+
+Perché la regola è esplicita. Due `.npz` per-utente prodotti dallo
+*stesso* `EvaluatorHoldout` sullo *stesso* `URM_test` condividono il
+vettore `user_ids` nello stesso ordine — l'evaluator itera la lista
+deterministica `self.users_to_evaluate`. Tutti i `.npz` della Phase 2
+soddisfano questa condizione (verificato empiricamente sui 8 file
+attualmente in `repro_check_results/per_user/`). In Phase 3, però, i
+5 `.npz` di DCCF e i 5 di BIGCF possono venire da run su macchine /
+processi diversi, e non è garantito che il filtro `min_ratings_per_user`
+o eventuali utenti cold scartati siano identici fra seed. In quel caso
+i due `user_ids` array sarebbero di lunghezze diverse o nella stessa
+lunghezza ma in ordine diverso — passare i vettori così come sono al
+test paired darebbe risultati silenziosamente sbagliati.
+
+La funzione `align_two()` in [`statistical_validation.py`](statistical_validation.py)
+implementa l'allineamento: fast-path quando `np.array_equal(a.user_ids,
+b.user_ids)` (caso Phase 2), altrimenti riallinea entrambi i vettori
+sull'intersezione dei due `user_ids` preservando l'ordine del pivot e
+scartando gli utenti presenti in uno solo dei due risultati. Ogni
+chiamata a `paired_wilcoxon` nello script passa per `align_two`. Anche
+il ramo multi-seed (Gaussian-noise stub Phase 2 e i 5 seed reali in
+Phase 3) opera sul vettore opponent **post-allineamento**, garantendo
+che ogni Wilcoxon per-seed appai gli stessi utenti.
+
 ### `zero_method='pratt'` invece del default
 
 Su Gowalla, circa il **54 % degli utenti ha Recall@20 = 0** (vedi

@@ -78,12 +78,34 @@ def load_per_user_npz(npz_path: Path, model: str, dataset: str,
 
 def align_two(a: PerUserResult, b: PerUserResult, metric: str, cutoff: int
               ) -> tuple[np.ndarray, np.ndarray]:
-    """Return paired arrays restricted to the intersection of user_ids."""
+    """Return paired arrays restricted to the intersection of user_ids.
+
+    PAIRING CONTRACT — IMPORTANT
+    ----------------------------
+    Paired Wilcoxon requires that, for every index i in the two returned
+    arrays, vec_A[i] and vec_B[i] are the metric values for the *same user*.
+    Two .npz files produced by EvaluatorHoldout on the *same* URM_test will
+    share user_ids in identical order (the evaluator processes the same
+    deterministic ``users_to_evaluate`` list), so the fast path below
+    short-circuits. Whenever the orderings differ — e.g. two .npz coming
+    from different machines, different runs, or a stochastic opponent's
+    K seeds that filtered different cold-users — the intersection path
+    re-aligns both vectors to the *intersection* of user ids in the order
+    of ``a.user_ids``, dropping any users present in only one of the two
+    results. Callers MUST go through this function before any paired test.
+    """
     if np.array_equal(a.user_ids, b.user_ids):
         return a.vec(metric, cutoff), b.vec(metric, cutoff)
-    # Otherwise align on intersection
-    common, ai, bi = np.intersect1d(a.user_ids, b.user_ids, return_indices=True)
-    return a.vec(metric, cutoff)[ai], b.vec(metric, cutoff)[bi]
+    # Map b's user_ids -> position; build aligned vectors in a's order
+    b_pos: dict[int, int] = {int(uid): j for j, uid in enumerate(b.user_ids)}
+    mask = np.array([int(uid) in b_pos for uid in a.user_ids], dtype=bool)
+    if not mask.any():
+        raise ValueError("align_two: empty intersection of user_ids")
+    a_vec = a.vec(metric, cutoff)[mask]
+    b_indices = np.array([b_pos[int(uid)] for uid in a.user_ids[mask]],
+                         dtype=np.int64)
+    b_vec = b.vec(metric, cutoff)[b_indices]
+    return a_vec, b_vec
 
 
 # ============================================================================
@@ -342,23 +364,29 @@ def build_placeholder_comparisons(per_user_dir: Path, dataset: str
     ]
 
 
-def _maybe_pseudo_seeds(opponent: PerUserResult, metric: str, cutoff: int,
+def _maybe_pseudo_seeds(aligned_opponent_vec: np.ndarray,
                         noise_sd: float, n_seeds: int, rng_seed: int = 0
                         ) -> list[np.ndarray]:
-    """Materialize K stochastic versions of a deterministic per-user vector
+    """Materialize K stochastic versions of an opponent's per-user vector
     by adding i.i.d. Gaussian noise. Used only for the *placeholder*
-    Phase-2 surrogate of stochastic opponents (DCCF, BIGCF). In Phase 3
-    these will be replaced with actual per-user vectors from the K real
-    seeds of the stochastic model.
+    Phase-2 surrogate of stochastic opponents (DCCF, BIGCF).
+
+    The caller MUST pass an opponent vector that has already been aligned
+    to the pivot via ``align_two``. Working on the post-alignment vector
+    guarantees that every per-seed Wilcoxon test pairs the same users on
+    both sides — see PAIRING CONTRACT in ``align_two``.
+
+    In Phase 3 these K vectors will be replaced with actual per-user
+    metric arrays from the K real seeds of the stochastic model, again
+    after going through ``align_two`` against the pivot.
     """
-    base = opponent.vec(metric, cutoff)
     rng = np.random.default_rng(rng_seed)
     out = []
-    for k in range(n_seeds):
-        perturbed = base + rng.normal(0.0, noise_sd, size=base.shape)
+    for _ in range(n_seeds):
+        perturbed = aligned_opponent_vec + rng.normal(
+            0.0, noise_sd, size=aligned_opponent_vec.shape)
         # clip back to [0, 1] since Recall/NDCG are bounded
-        perturbed = np.clip(perturbed, 0.0, 1.0)
-        out.append(perturbed)
+        out.append(np.clip(perturbed, 0.0, 1.0))
     return out
 
 
@@ -406,9 +434,14 @@ def run(args):
         if comp.opponent_label in seen_models:
             continue
         if comp.pseudo_seed_noise > 0:
-            seed_vecs = _maybe_pseudo_seeds(opp, metric, cutoff,
-                                            comp.pseudo_seed_noise,
-                                            comp.n_pseudo_seeds)
+            # For the descriptive row, align opponent to pivot first so the
+            # statistics describe exactly the users that will be tested.
+            _, base_aligned = align_two(pivot, opp, metric, cutoff)
+            seed_vecs = _maybe_pseudo_seeds(
+                aligned_opponent_vec=base_aligned,
+                noise_sd=comp.pseudo_seed_noise,
+                n_seeds=comp.n_pseudo_seeds,
+            )
             # report the mean-across-seeds vector as the "representative" for
             # the descriptive table (just for human reading; the actual test
             # uses per-seed vectors, see below)
@@ -438,15 +471,24 @@ def run(args):
         opp = load_per_user_npz(comp.opponent_npzs[0],
                                 model=comp.opponent_label,
                                 dataset=args.dataset)
+        # Pairing contract: align pivot and opponent on shared user_ids
+        # BEFORE any Wilcoxon test. See align_two() docstring.
         x, y = align_two(pivot, opp, metric, cutoff)
+        assert x.shape == y.shape, "align_two produced mismatched shapes"
 
         if comp.pseudo_seed_noise > 0:
-            # multi-seed branch: per-seed Wilcoxon, then HMP
-            seed_vecs = _maybe_pseudo_seeds(opp, metric, cutoff,
-                                            comp.pseudo_seed_noise,
-                                            comp.n_pseudo_seeds)
+            # multi-seed branch: per-seed Wilcoxon, then HMP.
+            # The noisy variants are generated from the ALREADY-ALIGNED
+            # opponent vector y, so vec_k[i] corresponds to the same user
+            # as x[i] for every i — same pairing as the deterministic path.
+            seed_vecs = _maybe_pseudo_seeds(
+                aligned_opponent_vec=y,
+                noise_sd=comp.pseudo_seed_noise,
+                n_seeds=comp.n_pseudo_seeds,
+            )
             per_seed_p = []
             for k, vec_k in enumerate(seed_vecs):
+                assert vec_k.shape == x.shape, "pseudo-seed alignment broken"
                 wres = paired_wilcoxon(x, vec_k)
                 per_seed_p.append(wres["p_value"])
             hmp = harmonic_mean_p(per_seed_p)
@@ -455,6 +497,7 @@ def run(args):
                 "comparison": comp.name,
                 "mode": "multi-seed-HMP",
                 "n_seeds": len(per_seed_p),
+                "n_pairs": int(x.shape[0]),
                 "per_seed_p_values": per_seed_p,
                 "hmp_statistic": hmp["hmp"],
                 "hmp_combined_p": hmp["p_combined"],
