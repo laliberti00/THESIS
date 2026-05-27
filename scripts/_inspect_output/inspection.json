@@ -1,0 +1,1154 @@
+{
+  "config": {
+    "seed": 42,
+    "sample_size": 1000
+  },
+  "snap_totalCheckins": {
+    "source": "snap_totalCheckins",
+    "path": "/Users/lucaaliberti/Downloads/IntentAwareRS_thesis/data/GowallaRaw/loc-gowalla_totalCheckins.txt",
+    "schema": {
+      "format": "TSV without header",
+      "columns": [
+        "user_id",
+        "time",
+        "lat",
+        "lon",
+        "location_id"
+      ],
+      "dtypes": {
+        "user_id": "int32",
+        "time": "datetime64[ns, UTC]",
+        "lat": "float64",
+        "lon": "float64",
+        "location_id": "int64"
+      }
+    },
+    "head_10": [
+      {
+        "user_id": "0",
+        "time": "2010-10-19 23:55:27+00:00",
+        "lat": "30.2359091167",
+        "lon": "-97.7951395833",
+        "location_id": "22847"
+      },
+      {
+        "user_id": "0",
+        "time": "2010-10-18 22:17:43+00:00",
+        "lat": "30.2691029532",
+        "lon": "-97.7493953705",
+        "location_id": "420315"
+      },
+      {
+        "user_id": "0",
+        "time": "2010-10-17 23:42:03+00:00",
+        "lat": "30.2557309927",
+        "lon": "-97.7633857727",
+        "location_id": "316637"
+      },
+      {
+        "user_id": "0",
+        "time": "2010-10-17 19:26:05+00:00",
+        "lat": "30.2634181234",
+        "lon": "-97.7575966669",
+        "location_id": "16516"
+      },
+      {
+        "user_id": "0",
+        "time": "2010-10-16 18:50:42+00:00",
+        "lat": "30.2742918584",
+        "lon": "-97.7405226231",
+        "location_id": "5535878"
+      },
+      {
+        "user_id": "0",
+        "time": "2010-10-12 23:58:03+00:00",
+        "lat": "30.261599404",
+        "lon": "-97.7585805953",
+        "location_id": "15372"
+      },
+      {
+        "user_id": "0",
+        "time": "2010-10-12 22:02:11+00:00",
+        "lat": "30.2679095833",
+        "lon": "-97.7493124167",
+        "location_id": "21714"
+      },
+      {
+        "user_id": "0",
+        "time": "2010-10-12 19:44:40+00:00",
+        "lat": "30.2691029532",
+        "lon": "-97.7493953705",
+        "location_id": "420315"
+      },
+      {
+        "user_id": "0",
+        "time": "2010-10-12 15:57:20+00:00",
+        "lat": "30.2811204101",
+        "lon": "-97.7452111244",
+        "location_id": "153505"
+      },
+      {
+        "user_id": "0",
+        "time": "2010-10-12 15:19:03+00:00",
+        "lat": "30.2691029532",
+        "lon": "-97.7493953705",
+        "location_id": "420315"
+      }
+    ],
+    "scale": {
+      "rows": 6442892,
+      "users_distinct": 107092,
+      "venues_distinct": 1280969,
+      "time_min": "2009-02-04 05:17:38+00:00",
+      "time_max": "2010-10-23 05:22:06+00:00"
+    },
+    "quality": {
+      "rows_with_nan": 0,
+      "rows_zero_zero_coords": 135,
+      "rows_lat_out_of_range": 29,
+      "rows_lon_out_of_range": 0,
+      "exact_duplicates": 601
+    },
+    "distributions": {
+      "checkins_per_user": {
+        "label": "checkins_per_user",
+        "n": 107092,
+        "mean": 60.16221566503567,
+        "std": 136.18894893467188,
+        "min": 1.0,
+        "max": 2175.0,
+        "p05": 1.0,
+        "p25": 7.0,
+        "p50": 25.0,
+        "p75": 56.0,
+        "p95": 225.0
+      },
+      "checkins_per_venue": {
+        "label": "checkins_per_venue",
+        "n": 1280969,
+        "mean": 5.029701733609478,
+        "std": 20.329748557751007,
+        "min": 1.0,
+        "max": 5811.0,
+        "p05": 1.0,
+        "p25": 1.0,
+        "p50": 2.0,
+        "p75": 4.0,
+        "p95": 16.0
+      },
+      "monthly": {
+        "2009-02": 7,
+        "2009-03": 900,
+        "2009-04": 570,
+        "2009-05": 1003,
+        "2009-06": 679,
+        "2009-07": 1113,
+        "2009-08": 1487,
+        "2009-09": 7714,
+        "2009-10": 37884,
+        "2009-11": 86869,
+        "2009-12": 203453,
+        "2010-01": 311180,
+        "2010-02": 301694,
+        "2010-03": 542440,
+        "2010-04": 549079,
+        "2010-05": 526144,
+        "2010-06": 584912,
+        "2010-07": 707685,
+        "2010-08": 861805,
+        "2010-09": 973801,
+        "2010-10": 742473
+      }
+    }
+  },
+  "liu_checkins": {
+    "source": "liu_checkins",
+    "path": "/Users/lucaaliberti/Downloads/IntentAwareRS_thesis/data/GowallaRaw/22126586/gowalla_checkins.csv",
+    "schema": {
+      "format": "CSV with header",
+      "columns": [
+        "userid",
+        "placeid",
+        "datetime"
+      ],
+      "dtypes": {
+        "userid": "int32",
+        "placeid": "int64",
+        "datetime": "datetime64[ns, UTC]"
+      }
+    },
+    "head_10": [
+      {
+        "userid": "1338",
+        "placeid": "482954",
+        "datetime": "2011-06-23 02:24:22+00:00"
+      },
+      {
+        "userid": "1338",
+        "placeid": "580963",
+        "datetime": "2011-06-22 14:23:03+00:00"
+      },
+      {
+        "userid": "1338",
+        "placeid": "365256",
+        "datetime": "2011-06-09 23:29:30+00:00"
+      },
+      {
+        "userid": "1338",
+        "placeid": "89504",
+        "datetime": "2011-05-22 15:54:30+00:00"
+      },
+      {
+        "userid": "1338",
+        "placeid": "1267135",
+        "datetime": "2011-05-21 16:51:13+00:00"
+      },
+      {
+        "userid": "1338",
+        "placeid": "1487647",
+        "datetime": "2011-05-16 18:40:41+00:00"
+      },
+      {
+        "userid": "1338",
+        "placeid": "730343",
+        "datetime": "2011-05-16 18:39:46+00:00"
+      },
+      {
+        "userid": "1338",
+        "placeid": "365256",
+        "datetime": "2011-04-24 17:13:13+00:00"
+      },
+      {
+        "userid": "1338",
+        "placeid": "6394522",
+        "datetime": "2011-04-24 13:51:04+00:00"
+      },
+      {
+        "userid": "1338",
+        "placeid": "39597",
+        "datetime": "2011-04-06 14:39:58+00:00"
+      }
+    ],
+    "scale": {
+      "rows": 36001959,
+      "users_distinct": 319063,
+      "placeids_distinct": 2844145,
+      "time_min": "2009-01-21 16:40:55+00:00",
+      "time_max": "2011-08-16 18:54:25+00:00"
+    },
+    "quality": {
+      "rows_with_nan": 0,
+      "exact_duplicates": 43599
+    },
+    "distributions": {
+      "checkins_per_user": {
+        "label": "checkins_per_user",
+        "n": 319063,
+        "mean": 112.83652131397247,
+        "std": 489.92115199330044,
+        "min": 1.0,
+        "max": 46981.0,
+        "p05": 1.0,
+        "p25": 5.0,
+        "p50": 21.0,
+        "p75": 78.0,
+        "p95": 443.0
+      },
+      "checkins_per_venue": {
+        "label": "checkins_per_venue",
+        "n": 2844145,
+        "mean": 12.658271290669076,
+        "std": 65.94578491609262,
+        "min": 1.0,
+        "max": 28414.0,
+        "p05": 1.0,
+        "p25": 2.0,
+        "p50": 4.0,
+        "p75": 10.0,
+        "p95": 43.0
+      },
+      "monthly": {
+        "2009-01": 42,
+        "2009-02": 437,
+        "2009-03": 6524,
+        "2009-04": 5878,
+        "2009-05": 7064,
+        "2009-06": 7490,
+        "2009-07": 11603,
+        "2009-08": 14527,
+        "2009-09": 38605,
+        "2009-10": 151536,
+        "2009-11": 366084,
+        "2009-12": 818975,
+        "2010-01": 1142196,
+        "2010-02": 1109810,
+        "2010-03": 1706840,
+        "2010-04": 1649293,
+        "2010-05": 1532632,
+        "2010-06": 1825195,
+        "2010-07": 1891237,
+        "2010-08": 2086570,
+        "2010-09": 2031554,
+        "2010-10": 2045808,
+        "2010-11": 2155673,
+        "2010-12": 2490958,
+        "2011-01": 2147037,
+        "2011-02": 1938766,
+        "2011-03": 2494648,
+        "2011-04": 2358150,
+        "2011-05": 2232528,
+        "2011-06": 1695357,
+        "2011-07": 37622,
+        "2011-08": 1320
+      }
+    }
+  },
+  "liu_spots_subset1": {
+    "source": "liu_spots_subset1",
+    "path": "/Users/lucaaliberti/Downloads/IntentAwareRS_thesis/data/GowallaRaw/22126586/gowalla_spots_subset1.csv",
+    "schema": {
+      "format": "CSV with header",
+      "columns": [
+        "id",
+        "created_at",
+        "lng",
+        "lat",
+        "photos_count",
+        "checkins_count",
+        "users_count",
+        "radius_meters",
+        "highlights_count",
+        "items_count",
+        "max_items_count",
+        "spot_categories"
+      ],
+      "dtypes": {
+        "id": "int64",
+        "created_at": "object",
+        "lng": "float64",
+        "lat": "float64",
+        "photos_count": "int32",
+        "checkins_count": "int32",
+        "users_count": "int32",
+        "radius_meters": "float32",
+        "highlights_count": "int32",
+        "items_count": "int32",
+        "max_items_count": "int32",
+        "spot_categories": "object"
+      }
+    },
+    "head_10": [
+      {
+        "id": "8904",
+        "created_at": "2008-12-06 16:28:53+00:00",
+        "lng": "-94.6074986458",
+        "lat": "39.0523183095",
+        "photos_count": "0",
+        "checkins_count": "114",
+        "users_count": "21",
+        "radius_meters": "35.0",
+        "highlights_count": "0",
+        "items_count": "10",
+        "max_items_count": "10",
+        "spot_categories": "[{'url': '/categories/89', 'name': 'Craftsman'}]"
+      },
+      {
+        "id": "8932",
+        "created_at": "2008-12-13 02:16:51+00:00",
+        "lng": "-97.2543561459",
+        "lat": "32.9276616668",
+        "photos_count": "2",
+        "checkins_count": "67",
+        "users_count": "48",
+        "radius_meters": "75.0",
+        "highlights_count": "0",
+        "items_count": "6",
+        "max_items_count": "10",
+        "spot_categories": "[{'url': '/categories/17', 'name': 'BBQ'}]"
+      },
+      {
+        "id": "8936",
+        "created_at": "2008-12-14 22:08:39+00:00",
+        "lng": "-94.5919954777",
+        "lat": "39.0533181067",
+        "photos_count": "0",
+        "checkins_count": "75",
+        "users_count": "46",
+        "radius_meters": "75.0",
+        "highlights_count": "0",
+        "items_count": "10",
+        "max_items_count": "10",
+        "spot_categories": "[{'url': '/categories/103', 'name': 'Theatre'}]"
+      },
+      {
+        "id": "8938",
+        "created_at": "2008-12-15 00:22:49+00:00",
+        "lng": "-94.59031105",
+        "lat": "39.0528237667",
+        "photos_count": "38",
+        "checkins_count": "438",
+        "users_count": "94",
+        "radius_meters": "50.0",
+        "highlights_count": "10",
+        "items_count": "10",
+        "max_items_count": "10",
+        "spot_categories": "[{'url': '/categories/1', 'name': 'Coffee Shop'}]"
+      },
+      {
+        "id": "8947",
+        "created_at": "2008-12-16 23:14:05+00:00",
+        "lng": "-122.0296311378",
+        "lat": "37.3318803266",
+        "photos_count": "91",
+        "checkins_count": "3100",
+        "users_count": "1186",
+        "radius_meters": "200.0",
+        "highlights_count": "20",
+        "items_count": "10",
+        "max_items_count": "10",
+        "spot_categories": "[{'url': '/categories/121', 'name': 'Corporate Office'}]"
+      },
+      {
+        "id": "8954",
+        "created_at": "2008-12-18 22:45:09+00:00",
+        "lng": "-97.1060085167",
+        "lat": "32.9394364333",
+        "photos_count": "1",
+        "checkins_count": "125",
+        "users_count": "70",
+        "radius_meters": "75.0",
+        "highlights_count": "0",
+        "items_count": "10",
+        "max_items_count": "10",
+        "spot_categories": "[{'url': '/categories/452', 'name': 'Old Navy'}]"
+      },
+      {
+        "id": "8956",
+        "created_at": "2008-12-18 23:38:58+00:00",
+        "lng": "-97.1311998333",
+        "lat": "32.9426550833",
+        "photos_count": "5",
+        "checkins_count": "335",
+        "users_count": "146",
+        "radius_meters": "75.0",
+        "highlights_count": "0",
+        "items_count": "10",
+        "max_items_count": "10",
+        "spot_categories": "[{'url': '/categories/125', 'name': 'City Hall'}]"
+      },
+      {
+        "id": "8957",
+        "created_at": "2008-12-18 23:42:09+00:00",
+        "lng": "-97.1312132478",
+        "lat": "32.9422220859",
+        "photos_count": "8",
+        "checkins_count": "196",
+        "users_count": "101",
+        "radius_meters": "50.0",
+        "highlights_count": "0",
+        "items_count": "10",
+        "max_items_count": "10",
+        "spot_categories": "[{'url': '/categories/150', 'name': 'Fountain'}]"
+      },
+      {
+        "id": "8958",
+        "created_at": "2008-12-19 00:05:52+00:00",
+        "lng": "-97.2602208",
+        "lat": "32.8829309",
+        "photos_count": "9",
+        "checkins_count": "221",
+        "users_count": "102",
+        "radius_meters": "75.0",
+        "highlights_count": "0",
+        "items_count": "10",
+        "max_items_count": "10",
+        "spot_categories": "[{'url': '/categories/363', 'name': 'Chipotle'}]"
+      },
+      {
+        "id": "8961",
+        "created_at": "2008-12-19 18:07:23+00:00",
+        "lng": "-97.115691",
+        "lat": "32.940099",
+        "photos_count": "11",
+        "checkins_count": "350",
+        "users_count": "142",
+        "radius_meters": "50.0",
+        "highlights_count": "0",
+        "items_count": "10",
+        "max_items_count": "10",
+        "spot_categories": "[{'url': '/categories/903', 'name': 'Chick-fil-A'}]"
+      }
+    ],
+    "scale": {
+      "rows": 2724891,
+      "venues_distinct": 2724891,
+      "time_min": "2008-12-06 16:28:53+00:00",
+      "time_max": "2011-08-12 22:51:41+00:00"
+    },
+    "quality": {
+      "rows_with_nan": 0,
+      "rows_zero_zero_coords": 402,
+      "rows_lat_out_of_range": 16,
+      "rows_lon_out_of_range": 0,
+      "exact_duplicates": 0,
+      "venues_with_category": 2724891,
+      "venues_without_category": 0
+    },
+    "distributions": {
+      "n_distinct_category_names": 630,
+      "top_20_categories": [
+        [
+          "Gas & Automotive",
+          99815
+        ],
+        [
+          "Corporate Office",
+          89727
+        ],
+        [
+          "Asian",
+          88596
+        ],
+        [
+          "Other - Food ",
+          66892
+        ],
+        [
+          "Apartment",
+          64411
+        ],
+        [
+          "Coffee Shop",
+          62902
+        ],
+        [
+          "Grocery",
+          54629
+        ],
+        [
+          "Other - Shopping",
+          51760
+        ],
+        [
+          "Craftsman",
+          50707
+        ],
+        [
+          "American",
+          45594
+        ],
+        [
+          "Bar",
+          39591
+        ],
+        [
+          "Pizza",
+          38819
+        ],
+        [
+          "Modern",
+          37607
+        ],
+        [
+          "Salon & Barbershop",
+          37126
+        ],
+        [
+          "Bank & Financial",
+          36454
+        ],
+        [
+          "Mexican",
+          35707
+        ],
+        [
+          "Italian",
+          35544
+        ],
+        [
+          "Other - Services",
+          34333
+        ],
+        [
+          "Pub",
+          31193
+        ],
+        [
+          "Modern Hotel",
+          30927
+        ]
+      ],
+      "sample_parsed_5": [
+        [
+          {
+            "url": "/categories/89",
+            "name": "Craftsman"
+          }
+        ],
+        [
+          {
+            "url": "/categories/17",
+            "name": "BBQ"
+          }
+        ],
+        [
+          {
+            "url": "/categories/103",
+            "name": "Theatre"
+          }
+        ],
+        [
+          {
+            "url": "/categories/1",
+            "name": "Coffee Shop"
+          }
+        ],
+        [
+          {
+            "url": "/categories/121",
+            "name": "Corporate Office"
+          }
+        ]
+      ]
+    },
+    "subset1_vs_subset2_relationship": {
+      "subset1_n": 2724891,
+      "subset2_n": 120958,
+      "intersection_n": 0,
+      "only_in_subset1_n": 2724891,
+      "only_in_subset2_n": 120958,
+      "union_n": 2845849,
+      "pct_subset2_in_subset1": 0.0,
+      "pct_subset1_in_subset2": 0.0
+    }
+  },
+  "liu_spots_subset2": {
+    "source": "liu_spots_subset2",
+    "path": "/Users/lucaaliberti/Downloads/IntentAwareRS_thesis/data/GowallaRaw/22126586/gowalla_spots_subset2.csv",
+    "schema": {
+      "format": "CSV with header",
+      "columns": [
+        "id",
+        "lat",
+        "lng",
+        "name",
+        "city_state",
+        "Unnamed: 5",
+        "Unnamed: 6"
+      ],
+      "dtypes": {
+        "id": "Int64",
+        "lat": "float64",
+        "lng": "float64",
+        "name": "object",
+        "city_state": "object",
+        "Unnamed: 5": "object",
+        "Unnamed: 6": "object"
+      }
+    },
+    "head_10": [
+      {
+        "id": "9813",
+        "lat": "36.63150787",
+        "lng": "-121.9120216",
+        "name": "Pacific Ocean",
+        "city_state": "Seaside, CA",
+        "Unnamed: 5": "nan",
+        "Unnamed: 6": "nan"
+      },
+      {
+        "id": "11981",
+        "lat": "40.6901729",
+        "lng": "-74.04549122",
+        "name": "Refreshment Park",
+        "city_state": "New York, NY",
+        "Unnamed: 5": "nan",
+        "Unnamed: 6": "nan"
+      },
+      {
+        "id": "12455",
+        "lat": "36.64202212",
+        "lng": "-93.2849121",
+        "name": "Mickey Gilley Theatre",
+        "city_state": "Branson, MO",
+        "Unnamed: 5": "nan",
+        "Unnamed: 6": "nan"
+      },
+      {
+        "id": "12455",
+        "lat": "36.64202212",
+        "lng": "-93.2849121",
+        "name": "Mickey Gilley Theatre",
+        "city_state": "Branson, MO",
+        "Unnamed: 5": "nan",
+        "Unnamed: 6": "nan"
+      },
+      {
+        "id": "13810",
+        "lat": "42.54887938",
+        "lng": "-82.90276765",
+        "name": "Jaword",
+        "city_state": "Clinton, MI",
+        "Unnamed: 5": "nan",
+        "Unnamed: 6": "nan"
+      },
+      {
+        "id": "13810",
+        "lat": "42.54887938",
+        "lng": "-82.90276765",
+        "name": "Jaword",
+        "city_state": "Clinton, MI",
+        "Unnamed: 5": "nan",
+        "Unnamed: 6": "nan"
+      },
+      {
+        "id": "14800",
+        "lat": "42.4412477",
+        "lng": "-82.90592193",
+        "name": "Lax field",
+        "city_state": "Grosse Pointe, MI",
+        "Unnamed: 5": "nan",
+        "Unnamed: 6": "nan"
+      },
+      {
+        "id": "14800",
+        "lat": "42.4412477",
+        "lng": "-82.90592193",
+        "name": "Lax field",
+        "city_state": "Grosse Pointe, MI",
+        "Unnamed: 5": "nan",
+        "Unnamed: 6": "nan"
+      },
+      {
+        "id": "14869",
+        "lat": "42.4647653",
+        "lng": "-82.89740323",
+        "name": "Harper Sports",
+        "city_state": "St. Clair Shores, MI",
+        "Unnamed: 5": "nan",
+        "Unnamed: 6": "nan"
+      },
+      {
+        "id": "14869",
+        "lat": "42.4647653",
+        "lng": "-82.89740323",
+        "name": "Harper Sports",
+        "city_state": "St. Clair Shores, MI",
+        "Unnamed: 5": "nan",
+        "Unnamed: 6": "nan"
+      }
+    ],
+    "scale": {
+      "rows": 120997,
+      "venues_distinct": 120958
+    },
+    "quality": {
+      "rows_with_nan": 120996,
+      "rows_zero_zero_coords": 53,
+      "rows_lat_out_of_range": 3,
+      "rows_lon_out_of_range": 0,
+      "exact_duplicates": 39
+    }
+  },
+  "liu_category_structure": {
+    "source": "liu_category_structure",
+    "path": "/Users/lucaaliberti/Downloads/IntentAwareRS_thesis/data/GowallaRaw/22126586/gowalla_category_structure.json",
+    "scale": {
+      "n_categories_total": 269,
+      "n_levels": 4,
+      "per_level_count": {
+        "0": 7,
+        "1": 134,
+        "2": 128,
+        "3": 0
+      },
+      "top_level_names": [
+        "Community",
+        "Entertainment",
+        "Food",
+        "Nightlife",
+        "Outdoors",
+        "Shopping",
+        "Travel"
+      ]
+    }
+  },
+  "liu_friendship": {
+    "source": "liu_friendship",
+    "path": "/Users/lucaaliberti/Downloads/IntentAwareRS_thesis/data/GowallaRaw/22126586/gowalla_friendship.csv",
+    "schema": {
+      "columns": [
+        "userid1",
+        "userid2"
+      ]
+    },
+    "scale": {
+      "rows_edges": 4418339,
+      "users_distinct": 407533
+    },
+    "quality": {
+      "exact_duplicates": 0,
+      "rows_with_nan": 0
+    }
+  },
+  "liu_userinfo": {
+    "source": "liu_userinfo",
+    "path": "/Users/lucaaliberti/Downloads/IntentAwareRS_thesis/data/GowallaRaw/22126586/gowalla_userinfo.csv",
+    "schema": {
+      "columns": [
+        "id",
+        "bookmarked_spots_count",
+        "challenge_pin_count",
+        "country_pin_count",
+        "highlights_count",
+        "items_count",
+        "photos_count",
+        "pins_count",
+        "province_pin_count",
+        "region_pin_count",
+        "state_pin_count",
+        "trips_count",
+        "friends_count",
+        "stamps_count",
+        "checkin_num",
+        "places_num"
+      ],
+      "dtypes": {
+        "id": "int64",
+        "bookmarked_spots_count": "int64",
+        "challenge_pin_count": "int64",
+        "country_pin_count": "int64",
+        "highlights_count": "int64",
+        "items_count": "int64",
+        "photos_count": "int64",
+        "pins_count": "int64",
+        "province_pin_count": "int64",
+        "region_pin_count": "int64",
+        "state_pin_count": "int64",
+        "trips_count": "int64",
+        "friends_count": "int64",
+        "stamps_count": "int64",
+        "checkin_num": "int64",
+        "places_num": "int64"
+      }
+    },
+    "head_10": [
+      {
+        "id": "1",
+        "bookmarked_spots_count": "26",
+        "challenge_pin_count": "59",
+        "country_pin_count": "1",
+        "highlights_count": "29",
+        "items_count": "18",
+        "photos_count": "135",
+        "pins_count": "85",
+        "province_pin_count": "0",
+        "region_pin_count": "13",
+        "state_pin_count": "12",
+        "trips_count": "2",
+        "friends_count": "372",
+        "stamps_count": "757",
+        "checkin_num": "1766",
+        "places_num": "756"
+      },
+      {
+        "id": "2",
+        "bookmarked_spots_count": "36",
+        "challenge_pin_count": "79",
+        "country_pin_count": "12",
+        "highlights_count": "117",
+        "items_count": "29",
+        "photos_count": "1069",
+        "pins_count": "138",
+        "province_pin_count": "0",
+        "region_pin_count": "31",
+        "state_pin_count": "19",
+        "trips_count": "7",
+        "friends_count": "775",
+        "stamps_count": "1227",
+        "checkin_num": "2892",
+        "places_num": "1220"
+      },
+      {
+        "id": "3",
+        "bookmarked_spots_count": "11",
+        "challenge_pin_count": "70",
+        "country_pin_count": "1",
+        "highlights_count": "42",
+        "items_count": "49",
+        "photos_count": "149",
+        "pins_count": "93",
+        "province_pin_count": "0",
+        "region_pin_count": "7",
+        "state_pin_count": "6",
+        "trips_count": "2",
+        "friends_count": "100",
+        "stamps_count": "905",
+        "checkin_num": "3021",
+        "places_num": "905"
+      },
+      {
+        "id": "4",
+        "bookmarked_spots_count": "7",
+        "challenge_pin_count": "51",
+        "country_pin_count": "1",
+        "highlights_count": "13",
+        "items_count": "29",
+        "photos_count": "138",
+        "pins_count": "80",
+        "province_pin_count": "0",
+        "region_pin_count": "13",
+        "state_pin_count": "12",
+        "trips_count": "1",
+        "friends_count": "179",
+        "stamps_count": "608",
+        "checkin_num": "1325",
+        "places_num": "613"
+      },
+      {
+        "id": "5",
+        "bookmarked_spots_count": "34",
+        "challenge_pin_count": "82",
+        "country_pin_count": "5",
+        "highlights_count": "62",
+        "items_count": "36",
+        "photos_count": "1012",
+        "pins_count": "134",
+        "province_pin_count": "0",
+        "region_pin_count": "19",
+        "state_pin_count": "14",
+        "trips_count": "2",
+        "friends_count": "525",
+        "stamps_count": "1124",
+        "checkin_num": "3215",
+        "places_num": "1124"
+      },
+      {
+        "id": "6",
+        "bookmarked_spots_count": "7",
+        "challenge_pin_count": "56",
+        "country_pin_count": "1",
+        "highlights_count": "30",
+        "items_count": "5",
+        "photos_count": "87",
+        "pins_count": "71",
+        "province_pin_count": "0",
+        "region_pin_count": "6",
+        "state_pin_count": "5",
+        "trips_count": "4",
+        "friends_count": "124",
+        "stamps_count": "520",
+        "checkin_num": "1723",
+        "places_num": "519"
+      },
+      {
+        "id": "7",
+        "bookmarked_spots_count": "11",
+        "challenge_pin_count": "72",
+        "country_pin_count": "1",
+        "highlights_count": "6",
+        "items_count": "6",
+        "photos_count": "38",
+        "pins_count": "93",
+        "province_pin_count": "0",
+        "region_pin_count": "11",
+        "state_pin_count": "10",
+        "trips_count": "2",
+        "friends_count": "167",
+        "stamps_count": "589",
+        "checkin_num": "1499",
+        "places_num": "611"
+      },
+      {
+        "id": "11",
+        "bookmarked_spots_count": "0",
+        "challenge_pin_count": "14",
+        "country_pin_count": "5",
+        "highlights_count": "0",
+        "items_count": "12",
+        "photos_count": "0",
+        "pins_count": "29",
+        "province_pin_count": "0",
+        "region_pin_count": "15",
+        "state_pin_count": "10",
+        "trips_count": "0",
+        "friends_count": "49",
+        "stamps_count": "134",
+        "checkin_num": "140",
+        "places_num": "132"
+      },
+      {
+        "id": "12",
+        "bookmarked_spots_count": "23",
+        "challenge_pin_count": "32",
+        "country_pin_count": "1",
+        "highlights_count": "5",
+        "items_count": "20",
+        "photos_count": "143",
+        "pins_count": "52",
+        "province_pin_count": "0",
+        "region_pin_count": "10",
+        "state_pin_count": "9",
+        "trips_count": "0",
+        "friends_count": "249",
+        "stamps_count": "422",
+        "checkin_num": "1777",
+        "places_num": "420"
+      },
+      {
+        "id": "15",
+        "bookmarked_spots_count": "0",
+        "challenge_pin_count": "7",
+        "country_pin_count": "2",
+        "highlights_count": "0",
+        "items_count": "7",
+        "photos_count": "2",
+        "pins_count": "14",
+        "province_pin_count": "0",
+        "region_pin_count": "7",
+        "state_pin_count": "5",
+        "trips_count": "0",
+        "friends_count": "18",
+        "stamps_count": "13",
+        "checkin_num": "14",
+        "places_num": "13"
+      }
+    ],
+    "scale": {
+      "rows": 407533,
+      "users_distinct": 407533
+    },
+    "quality": {
+      "rows_with_nan": 0,
+      "exact_duplicates": 0
+    },
+    "distributions": {
+      "checkin_num": {
+        "label": "checkin_num",
+        "n": 407533,
+        "mean": 88.34121163194146,
+        "std": 435.9825810610163,
+        "min": 0.0,
+        "max": 46981.0,
+        "p05": 0.0,
+        "p25": 1.0,
+        "p50": 10.0,
+        "p75": 52.0,
+        "p95": 356.0
+      }
+    }
+  },
+  "shehzad_pkl_reference": {
+    "source": "shehzad_pkl",
+    "path": "/Users/lucaaliberti/Downloads/IntentAwareRS_thesis/data/DCCF/gowalla",
+    "scale": {
+      "shape": [
+        50821,
+        57440
+      ],
+      "users": 50821,
+      "items": 57440,
+      "train_interactions": 1172425,
+      "test_interactions": 130270,
+      "total_interactions": 1302695,
+      "density_train": 0.0004016311907777908
+    },
+    "distributions": {
+      "train_per_user": {
+        "min": 1,
+        "max": 947,
+        "mean": 23.069695598276304,
+        "p05": 5.0,
+        "p25": 7.0,
+        "p50": 13.0,
+        "p75": 24.0,
+        "p95": 72.0
+      },
+      "train_per_item": {
+        "min": 1,
+        "max": 2273,
+        "mean": 20.411298746518106,
+        "p05": 7.0,
+        "p25": 10.0,
+        "p50": 13.0,
+        "p75": 19.0,
+        "p95": 53.0
+      }
+    }
+  },
+  "id_systems": {
+    "snap_user_id": {
+      "min": 0,
+      "max": 196585,
+      "distinct": 107092
+    },
+    "liu_userid": {
+      "min": 1,
+      "max": 2688969,
+      "distinct": 319063
+    },
+    "snap_location_id": {
+      "min": 8904,
+      "max": 5977757,
+      "distinct": 1280969
+    },
+    "liu_placeid": {
+      "min": 8904,
+      "max": 7715122,
+      "distinct": 2844145
+    },
+    "user_id_set_intersection": 43230,
+    "venue_id_set_intersection": 1246947
+  },
+  "snap_vs_liu": {
+    "range_overlap": {
+      "snap_time_range": [
+        "2009-02-04 05:17:38+00:00",
+        "2010-10-23 05:22:06+00:00"
+      ],
+      "liu_time_range": [
+        "2009-01-21 16:40:55+00:00",
+        "2011-08-16 18:54:25+00:00"
+      ],
+      "overlap_days": 626,
+      "overlap_window": [
+        "2009-02-04 05:17:38+00:00",
+        "2010-10-23 05:22:06+00:00"
+      ]
+    },
+    "join_coverage": {
+      "n_liu_checkins": 36001959,
+      "n_with_coordinates": 36001678,
+      "pct_with_coordinates": 99.99921948691737,
+      "n_distinct_placeids_with_coords": 2845849
+    },
+    "sample_match": {
+      "sample_size": 1000,
+      "tolerance_seconds": 600,
+      "tolerance_degrees": 0.001,
+      "matched": 0,
+      "pct_matched": 0.0,
+      "examples_matched": [],
+      "examples_not_matched": [
+        {
+          "snap_user": 73655,
+          "snap_time": "2010-02-12 17:12:33",
+          "snap_lat": 32.7844829195,
+          "snap_lng": -96.79679811
+        },
+        {
+          "snap_user": 3888,
+          "snap_time": "2010-01-14 19:29:02",
+          "snap_lat": 37.8005003833,
+          "snap_lng": -122.4074578167
+        },
+        {
+          "snap_user": 125904,
+          "snap_time": "2010-07-15 20:50:45",
+          "snap_lat": 36.41396295,
+          "snap_lng": -89.06678175
+        }
+      ]
+    }
+  }
+}

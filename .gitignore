@@ -41,3 +41,8 @@ repro_check_results/
 *.tmp
 *.bak
 *.orig
+
+# Raw Gowalla data sources (2 GB total — too large for git, regeneratable from
+# the upstream SNAP / Liu mirrors). The committed inspection JSON in
+# scripts/_inspect_output/ is the canonical fingerprint of these files.
+data/GowallaRaw/
