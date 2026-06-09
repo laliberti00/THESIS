@@ -30,3 +30,8 @@ numba
 # CPU-only inference is fine; if Apple Silicon is detected the
 # `_BPRMFBase` recommender automatically uses MPS for training.
 torch>=2.0
+
+# Added for step01_preprocessing (spatial contextual feature: geohash5/4
+# on Foursquare check-in coordinates).
+pygeohash
+pyarrow                     # parquet writer for the dual-view DataFrames
