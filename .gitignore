@@ -54,3 +54,4 @@ outputs/*
 *.tmp
 *.bak
 *.orig
+outputs.snapshot_*
