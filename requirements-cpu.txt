@@ -35,3 +35,8 @@ torch>=2.0
 # on Foursquare check-in coordinates).
 pygeohash
 pyarrow                     # parquet writer for the dual-view DataFrames
+
+# Added for step02 baseline pavement: protocol YAML config + pandas
+# DataFrame.to_markdown() for the floor table.
+pyyaml
+tabulate
