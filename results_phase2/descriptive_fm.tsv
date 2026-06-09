@@ -1,6 +1,0 @@
-model	n_users	mean	std	ci95_lo	ci95_hi	pct_zero	mean_across_seeds
-FM (vanilla)	38234	0.103239	0.241718	0.100762	0.105691	0.765758	
-CAMF (vanilla, placeholder for FM-flat)	38234	0.103389	0.242474	0.100980	0.105850	0.766804	
-RP3β (placeholder for best non-neural)	38234	0.245458	0.344263	0.242015	0.248866	0.538683	
-UserKNN ×5 (placeholder for DCCF, Gaussian-noise stub)	38234	0.217258	0.327129	0.214003	0.220514	0.018387	True
-TopPop ×5 (placeholder for BIGCF, Gaussian-noise stub)	38234	0.027201	0.119483	0.025997	0.028444	0.029424	True

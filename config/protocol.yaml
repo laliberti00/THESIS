@@ -1,0 +1,93 @@
+# Evaluation protocol constants — inherited from Shehzad et al. (SIGIR 2025)
+#
+# These are the protocol parameters we have committed to in this thesis. They
+# were originally hard-coded inside three scripts of the upstream Shehzad
+# repository (run_experiments_for_DCCF_original_baselines.py,
+# run_experiments_for_BIGCF_original.py,
+# run_hyperparameter_search_baseline_DCCF_for_datasets.py).
+#
+# Those scripts are removed in this branch (foursquare-rebuild) since they
+# target Gowalla/AmazonBook/Tmall + DCCF/BIGCF and are out of scope. This file
+# is the canonical, code-independent place where the protocol lives from now
+# on. Read by experiments/* and pipeline/* whenever the protocol needs to be
+# referenced.
+
+evaluation:
+  # Top-K cutoffs used to compute Precision/Recall/NDCG/MAP/MRR and friends.
+  # Same list Shehzad reports in their tables.
+  cutoff_list: [1, 5, 10, 20, 40, 50, 100]
+  # The single cutoff and metric that drives the Bayesian hyperparameter
+  # search (only this value is optimized; everything else is reported).
+  cutoff_to_optimize: 20
+  metric_to_optimize: RECALL
+  # Holdout fraction used to derive the inner validation split from the train
+  # set (per-user, last 10 % of each user profile under URM.indices order).
+  # See engine/Data_manager/split_functions/ for the implementation.
+  validation_portion: 0.1
+  # Whether the evaluator removes already-seen items from the recommendation
+  # list before scoring (we keep Shehzad's choice).
+  exclude_seen: true
+
+hyperparameter_search:
+  # Bayesian search via scikit-optimize.gp_minimize.
+  algorithm: bayesian_skopt
+  acq_func: gp_hedge
+  noise: 1.0e-5
+  xi: 0.01
+  kappa: 1.96
+  # Number of evaluation rounds per model. 5 initial random points + 95 GP
+  # iterations = 100 trials total. Same numbers Shehzad reports.
+  n_cases: 100
+  n_random_starts: 5
+
+# Seeds we adopt across the project. The deep-model seeds (DCCF, BIGCF) are
+# kept as reference even though those models are not run in this branch
+# (citation-only in Related Work). The five "multi_seed_set" values are what
+# we will use for any stochastic model we DO train (FM-context, CAMF-context,
+# TFM, the situational proposal).
+seeds:
+  random_recommender_default: 42       # NonPersonalizedRecommender.Random.fit(random_seed=42)
+  dccf_reference: 2022                 # not used (DCCF not run), kept for record
+  bigcf_reference: 2023                # idem for BIGCF
+  multi_seed_set: [2022, 2023, 42, 0, 1]  # 5 seeds for stochastic models we train
+
+# ---------------------------------------------------------------------------
+# Legacy: Shehzad's best hyperparameters for the non-neural baselines on
+# Gowalla / AmazonBook / Tmall (DCCF splits). These are NOT used in
+# foursquare-rebuild — we will run our own Bayesian search on Foursquare. They
+# are retained here only as a historical reference, in case a reviewer asks
+# "what numbers came out of Shehzad's tuned models on these specific datasets?".
+# ---------------------------------------------------------------------------
+legacy_shehzad_best_hp:
+  gowalla:
+    ItemKNN: {topK: 508, similarity: cosine}
+    UserKNN: {topK: 146, similarity: cosine}
+    P3alpha: {topK: 777, alpha: 1.087096950563704, normalize_similarity: false}
+    RP3beta: {topK: 777, alpha: 0.5663562161452378, beta: 0.001085447926739258, normalize_similarity: true}
+    # EASE^R: l2_norm fixed at 1e3 default (no tuning per dataset in upstream code)
+  tmall:
+    ItemKNN: {topK: 516, similarity: cosine}
+    UserKNN: {topK: 454, similarity: cosine}
+    P3alpha: {topK: 100, alpha: 1.0, normalize_similarity: false}
+    RP3beta: {topK: 350, alpha: 0.7681732734954694, beta: 0.4181395996963926, normalize_similarity: true}
+  amazonBook:
+    ItemKNN: {topK: 125, similarity: cosine}
+    UserKNN: {topK: 454, similarity: cosine}
+    P3alpha: {topK: 496, alpha: 0.41477903655656115, normalize_similarity: false}
+    RP3beta: {topK: 496, alpha: 0.44477903655656115, beta: 0.5968193614337285, normalize_similarity: true}
+
+# Statistical validation (see step04_statistical_validation/STATISTICAL_PROTOCOL.md).
+statistical_validation:
+  # Paired test on per-user metric vectors.
+  test: wilcoxon_signed_rank
+  zero_method: pratt
+  alternative: two-sided
+  # Multi-seed combination for stochastic opponents.
+  multi_seed_aggregation: harmonic_mean_p_value     # Wilson 2019 PNAS
+  # Multiplicity control on the primary-comparison family.
+  multiplicity_correction: holm
+  alpha_familywise: 0.05
+  # Bootstrap confidence intervals on the per-user mean.
+  bootstrap_n: 10000
+  bootstrap_method: percentile
+  bootstrap_alpha: 0.05

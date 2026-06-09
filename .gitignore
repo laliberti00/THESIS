@@ -21,8 +21,8 @@ ENV/
 # Local Cython build artefacts (only the original .pyx files are tracked)
 *.c
 *.cpp
-!topn_baselines_neurals/CythonCompiler/**/*.c
-!topn_baselines_neurals/CythonCompiler/**/*.cpp
+!engine/CythonCompiler/**/*.c
+!engine/CythonCompiler/**/*.cpp
 
 # Notebook checkpoints
 .ipynb_checkpoints/
@@ -36,8 +36,21 @@ Thumbs.db
 .idea/
 *.swp
 
-# Local experiment scratch outputs from our own scripts
-repro_check_results/
+# --- Pipeline data plane (Block 1) ----------------------------------------
+# Raw and processed datasets are large and recreatable; do NOT track them.
+# Keep folder structure with .gitkeep stubs (see data/raw/.gitkeep etc.).
+data/raw/*
+!data/raw/.gitkeep
+data/processed/*
+!data/processed/.gitkeep
+
+# --- Outputs plane --------------------------------------------------------
+# Per-user .npz dumps, per-model TSVs, statistical-validation tables/figures.
+# Recomputable by re-running the experiments.
+outputs/*
+!outputs/.gitkeep
+
+# Misc
 *.tmp
 *.bak
 *.orig

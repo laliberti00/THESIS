@@ -1,277 +1,218 @@
-# IntentAwareRS — Thesis Baseline
+# Situation-Aware Recommendation — Thesis Codebase
 
-PhD thesis baseline. Forked and cleaned from the reproducibility package of
-[Shehzad, Ferrari Dacrema & Jannach — *"A Worrying Reproducibility Study of Intent-Aware
-Recommendation Models"*, ACM SIGIR 2025](https://github.com/RecSysEvaluation/IntentAwareRS).
+This repository hosts the code for a PhD thesis on **situation-aware
+recommendation**. The paper is methodological (survey-grounded framework
+operationalised on top of Factorization Machines), evaluated on **Foursquare
+TSMC2014 (NYC + Tokyo)** in a **single-phase**, **CPU-only**, **top-N full
+ranking** setting. Beyond-accuracy is a first-class concern: interpretability
+(situational archetypes) and fairness (Ge et al. 2022) sit next to standard
+accuracy metrics.
 
-This repository is the starting point for a thesis on **situation-aware Factorization
-Machines** for top-N recommendation. In Phase 1 (this state) we have **(a)** trimmed
-the upstream framework to the perimeter actually used by the thesis, **(b)** verified
-that we can reproduce the non-neural baseline numbers of Shehzad on at least one
-dataset, and **(c)** documented what the data and the pipeline really contain.
-
-> ⚠️ Phase 1 status — **see [PHASE1_SUMMARY.md](PHASE1_SUMMARY.md) first.** It lists
-> the open decisions (Plan A/B/C for the FM model) that need to be made before
-> Phase 3 starts.
-
----
-
-## Perimeter of this repo (what is kept vs. dropped)
-
-**Kept (in scope for the thesis):**
-- **Two deep intent-aware models**: DCCF (SIGIR 2023), BIGCF (SIGIR 2024).
-- **Five non-neural baselines tuned by Shehzad**: ItemKNN, UserKNN, P3α, RP3β, EASE^R.
-- **Three datasets**: Gowalla, Amazon-Book, Tmall (DCCF splits, see [DATA_INVENTORY.md](DATA_INVENTORY.md)).
-- The `topn_baselines_neurals/` framework (a fork of `RecSys2019_DeepLearning_Evaluation`).
-
-**Dropped (out of thesis scope):**
-- DGCF (SIGIR 2020), KGIN (WWW 2021), IDS4NR (TKDE 2022) and their datasets
-  (Yelp 2018, AlibabaFashion, lastFm, MovieLens, Beauty, Music).
-- All of their entry-point scripts and HP-tuning scripts.
-- The Python 3.6 + TensorFlow 1.14 environment that DGCF required.
-
-For the rationale, see [PHASE1_SUMMARY.md](PHASE1_SUMMARY.md). For the original
-Shehzad repo with all five models intact, see the upstream link above or check out
-the tag `original-shehzad-v1` on the *other* local repo at
-`~/Downloads/IntentAwareRS_original/`.
+> Branch convention: this branch (`foursquare-rebuild`) is the active
+> rebuild. The previous branches `main`, `phase2-baselines-and-validation`
+> and `gowalla-dataset-comparison` remain as backup of the earlier Gowalla
+> plan — nothing is lost.
 
 ---
 
-## Repo layout
+## The 4-block flow
+
+The repo is laid out so that the directory tree reads like the pipeline:
+
+```
+            ┌────────────────────────────────────────────────────────┐
+            │  Block 1     Block 2       Block 3        Block 4      │
+data/  ───► │ preprocess ─► models ───► evaluation ──► statistical   │
+            │                                            validation  │
+            └────────────────────────────────────────────────────────┘
+```
+
+| Block | What it does | Code lives in |
+|---|---|---|
+| **1. Preprocessing** | Foursquare TSMC2014 → dual view (sparse URM + per-interaction DF). Same user/item indexing, same train/val/test split. | `pipeline/step01_preprocessing/` |
+| **2. Models** | CARS (FM-context, CAMF-context, TFM) and the situational FM proposal. Each model extends `engine/Recommenders/`. | `pipeline/step02_models/{cars,proposed}/` |
+| **3. Evaluation** | Beyond-accuracy: fairness (KL + Long-tail Rate, Ge 2022, global *and* stratified-per-situation) + interpretability (archetype labelling). | `pipeline/step03_evaluation/` |
+| **4. Statistical validation** | Paired Wilcoxon + Pratt + Harmonic Mean P-value + Holm on the 3-comparison primary family. Bootstrap CI on descriptive table. | `pipeline/step04_statistical_validation/` |
+
+Each block has its own entry point in `experiments/`:
+
+```bash
+python -m experiments.run_preprocessing            # Block 1
+python -m experiments.run_baselines                # Block 2, CF pavement
+python -m experiments.run_cars                     # Block 2, CARS
+python -m experiments.run_proposed                 # Block 2, proposal
+python -m experiments.run_evaluation               # Block 3
+python -m experiments.run_statistical_validation   # Block 4
+```
+
+---
+
+## Repository layout (snapshot)
 
 ```
 IntentAwareRS_thesis/
-├── README.md                                  this file
-├── PHASE1_SUMMARY.md                          read this first
-├── CODE_ANALYSIS.md                           how the framework is wired
-├── DATA_INVENTORY.md                          what is really in the .pkl files
-├── REPRODUCIBILITY_CHECK.md                   verified numbers vs. Shehzad
+├── README.md                          this file
 │
-├── requirements-cpu.txt                       env for non-neural baselines
-├── requirements-gpu.txt                       env for DCCF / BIGCF (CUDA)
-├── setup_env.sh                               one-shot CPU env bootstrap
-├── .gitignore
+├── engine/                            Ferrari Dacrema framework, reused INTACT
+│   ├── Data_manager/                  ↪ dataset readers + splitters
+│   ├── Evaluation/
+│   │   ├── Evaluator.py               ↪ EvaluatorHoldout (THESIS PATCH: save_per_user)
+│   │   ├── metrics.py
+│   │   └── EVALUATOR_PATCH.md         ↪ doc of the per-user patch
+│   ├── HyperparameterTuning/          ↪ Bayesian search (scikit-optimize)
+│   └── Recommenders/
+│       ├── NonPersonalizedRecommender.py   (Random, TopPop)
+│       ├── KNN/                       ↪ ItemKNN, UserKNN
+│       ├── GraphBased/                ↪ P3α, RP3β
+│       ├── EASE_R/                    ↪ EASE^R
+│       ├── FactorizationMachines/     ↪ _BPRMFBase + FM-vanilla (backbone)
+│       ├── CAMF/                      ↪ CAMF-vanilla (backbone)
+│       └── Similarity/                ↪ shared similarity utilities
 │
-├── data/DCCF/{gowalla,amazonBook,tmall}/      train.pkl, test.pkl (+valid for AmazonBook)
-├── results/{DCCF,BIGCF}/                      Shehzad's reference numbers (ground truth)
-├── log/{gowalla,amazonbook,tmall}.log         Shehzad's original training logs
-├── docs/tables_window/                        Shehzad's HTML result tables
+├── pipeline/                          PROJECT code (the new stuff)
+│   ├── step01_preprocessing/          ↪ TSMC2014 → dual-view (not yet implemented)
+│   ├── step02_models/
+│   │   ├── cars/                      ↪ FM-context, CAMF-context, TFM (not yet)
+│   │   └── proposed/                  ↪ situational FM (not yet, Sec.4 in paper)
+│   ├── step03_evaluation/
+│   │   ├── fairness.py                ↪ KL + Long-tail + per-situation (stub)
+│   │   └── interpretability.py        ↪ archetype labelling (stub)
+│   └── step04_statistical_validation/
+│       ├── statistical_validation.py  ↪ Wilcoxon+Pratt + HMP + Holm + bootstrap
+│       └── STATISTICAL_PROTOCOL.md    ↪ methodological doc
 │
-├── topn_baselines_neurals/                    the framework
-│   ├── Data_manager/                          dataset loaders + splitters
-│   ├── Evaluation/                            EvaluatorHoldout + metrics
-│   ├── HyperparameterTuning/                  scikit-optimize Bayesian search
-│   └── Recommenders/                          baseline + DCCF + BIGCF + LightFM
+├── experiments/                       thin runners orchestrating the pipeline
+│   ├── run_preprocessing.py
+│   ├── run_baselines.py               ↪ CF pavement on a URM (synthetic-driven for now)
+│   ├── run_cars.py
+│   ├── run_proposed.py
+│   ├── run_evaluation.py
+│   └── run_statistical_validation.py
 │
-├── inspect_pkls.py                            utility: dump .pkl shape/contents
-├── repro_check_baseline.py                    runs the baselines on a dataset
+├── config/
+│   └── protocol.yaml                  ↪ inherited Shehzad constants (cutoffs,
+│                                        n_trials=100, optimize=Recall@20, seeds,
+│                                        statistical-validation policy)
 │
-└── run_experiments_for_DCCF_original_baselines.py     full DCCF + baseline eval
-    run_experiments_for_BIGCF_original.py              BIGCF training/eval
-    run_hyperparameter_search_baseline_DCCF_for_datasets.py  Bayesian HP search
+├── data/                              GITIGNORED
+│   ├── raw/                           ↪ TSMC2014 TSVs land here (empty stub)
+│   └── processed/                     ↪ pipeline.step01 output (empty stub)
+│
+├── outputs/                           GITIGNORED
+│                                       per-user .npz, per-model TSV, tables,
+│                                       figures — recomputable
+│
+├── tests/
+│   └── test_smoke.py                  ↪ end-to-end smoke on a synthetic URM,
+│                                        always passes on a clean checkout
+│
+├── requirements-cpu.txt               numpy<2, scipy<1.14, pandas<2.2, sklearn,
+│                                       scikit-optimize, torch>=2.0, tables, …
+├── setup_env.sh                       ./setup_env.sh creates .venv/ ready
+└── .gitignore
 ```
 
 ---
 
-## Environment setup
-
-The framework needs two distinct environments. Pick the one matching your
-hardware. **The CPU env covers everything we need for Phase 1 and Phase 2.**
-
-### CPU env — non-neural baselines (works on macOS / Linux, no GPU)
-
-This is the env to use locally on a laptop. It runs Random, TopPop, ItemKNN,
-UserKNN, P3α, RP3β, and (RAM permitting) EASE^R.
+## Quick start
 
 ```bash
 cd ~/Downloads/IntentAwareRS_thesis
-./setup_env.sh                        # creates .venv/ and installs requirements-cpu.txt
+./setup_env.sh                   # creates .venv/ and installs requirements-cpu.txt
 source .venv/bin/activate
+python -m tests.test_smoke       # synthetic-URM smoke test, must print PASSED
 ```
 
-Sanity check after activation:
-
-```bash
-python -c "import numpy, scipy, sklearn; print(numpy.__version__, scipy.__version__, sklearn.__version__)"
-# Expected: numpy 1.26.x  scipy 1.13.x  sklearn 1.x
-```
-
-**Tested on:** macOS 26.2 (arm64, Apple M2, 16 GB RAM), Python 3.11.0.
-
-### GPU env — DCCF and BIGCF (CUDA-capable machine required)
-
-DCCF and BIGCF are heavy PyTorch models. On the original paper they were trained
-with NVIDIA CUDA. We have not run them yet locally — they will be run on the
-university workstation in Phase 2.
-
-The recommended path is to mirror Shehzad's setup:
-
-```bash
-# On the GPU machine, with conda available:
-conda create -n IntentAwareRS_thesis_gpu python=3.8
-conda activate IntentAwareRS_thesis_gpu
-pip install -r requirements-gpu.txt
-```
-
-Alternative without conda (Linux x86_64 + CUDA 11.8 NVIDIA):
-
-```bash
-python3.8 -m venv .venv-gpu
-source .venv-gpu/bin/activate
-pip install --upgrade pip
-pip install -r requirements-gpu.txt
-```
-
-> Compatibility caveats — see [CODE_ANALYSIS.md §8.3](CODE_ANALYSIS.md):
-> the framework was written for NumPy 1.23. We patched two NumPy 2.x
-> incompatibilities (`np.int → int`) on the non-neural code path; the rest of
-> the code still expects pre-2.0 NumPy aliases. With the pinned `numpy==1.23.5`
-> in `requirements-gpu.txt` this is a non-issue. With the looser CPU env
-> (`numpy<2`) you may hit additional `np.float`, `np.bool` errors if you try
-> to run code paths beyond the non-neural baselines — patch them the same way.
+Tested on: macOS 26.2 (arm64, Apple M2, 16 GB RAM), Python 3.11.0.
 
 ---
 
-## How to run experiments
+## What's in `engine/` (and what's intentionally NOT)
 
-All commands assume you are in the repo root with the right env active.
+The `engine/` is the Ferrari Dacrema fork (formerly `topn_baselines_neurals/`)
+used by Shehzad et al. (SIGIR 2025). It is reused **intact** — we extend it
+from `pipeline/`, we don't modify it. The one exception is the additive patch
+on `Evaluation/Evaluator.py` (`save_per_user` flag) documented in
+[`engine/Evaluation/EVALUATOR_PATCH.md`](engine/Evaluation/EVALUATOR_PATCH.md).
 
-### 1. Inspect the datasets (quick, ~5 s)
+What we removed from the engine in this branch (relative to `main`):
 
-```bash
-python inspect_pkls.py
-```
+- The DCCF and BIGCF Recommenders — out-of-scope, citation-only in Related Work.
+- Dataset readers for Gowalla, Amazon-Book, Tmall, Yelp 2018, IDS4NR
+  (MovieLens, Beauty, Music), KGIN (AlibabaFashion, LastFM, AmazonBook),
+  and the upstream MovieLens reader.
+- The optional Recommender families that we don't use:
+  `SLIM/`, `MatrixFactorization/`, `Neural/`, `FeatureWeighting/`, plus the
+  monolithic `Recommender_import_list.py`.
 
-Prints shape / nnz / stats for the 14 `.pkl` files. The same output sources
-[DATA_INVENTORY.md](DATA_INVENTORY.md).
-
-### 2. Reproduce Shehzad's baselines (CPU)
-
-```bash
-# all baselines on one dataset (Random, TopPop, ItemKNN, UserKNN, P3α, RP3β)
-python repro_check_baseline.py --dataset gowalla --model all
-
-# one specific model
-python repro_check_baseline.py --dataset gowalla --model RP3beta
-```
-
-Results are written to `repro_check_results/<dataset>_<model>.txt`. Compare
-manually against `results/DCCF/<dataset>_<Model>Recommender.txt` (Shehzad's
-ground truth). For a curated comparison see [REPRODUCIBILITY_CHECK.md](REPRODUCIBILITY_CHECK.md).
-
-> EASE^R is **not** in `repro_check_baseline.py`'s default list: it requires
-> a dense `n_items × n_items` Gram matrix, which is ≥14 GB for our smallest
-> dataset (Tmall) and >26 GB for Gowalla. Run it only on a high-RAM machine.
-
-### 3. Run the full DCCF baseline pipeline (GPU recommended, original Shehzad script)
-
-This is Shehzad's own entry point. It trains DCCF *and* the baselines and saves
-everything to `results/DCCF/`.
-
-```bash
-python run_experiments_for_DCCF_original_baselines.py --dataset gowalla
-python run_experiments_for_DCCF_original_baselines.py --dataset amazonBook
-python run_experiments_for_DCCF_original_baselines.py --dataset tmall
-```
-
-DCCF needs CUDA. The baseline part will still run on CPU if you skip the DCCF
-section, but the script is monolithic — for CPU-only use `repro_check_baseline.py`
-instead.
-
-### 4. Run BIGCF (GPU recommended)
-
-```bash
-python run_experiments_for_BIGCF_original.py --dataset gowalla
-python run_experiments_for_BIGCF_original.py --dataset amazonBook
-python run_experiments_for_BIGCF_original.py --dataset tmall
-```
-
-BIGCF reuses the DCCF train/test split (see Shehzad's README for context). No
-need to retune baselines for BIGCF.
-
-### 5. Re-tune baseline hyperparameters (optional, slow)
-
-Only needed if you want to redo the Bayesian search from scratch (Shehzad's
-"best HP" values are already hardcoded in
-`run_experiments_for_DCCF_original_baselines.py:84-100` and in
-`repro_check_baseline.py`).
-
-```bash
-python run_hyperparameter_search_baseline_DCCF_for_datasets.py --dataset gowalla
-```
-
-100 trials × 5 models, multiprocessing. Hours on a laptop.
-
-### 6. Phase 2 — FM, CAMF and statistical validation
-
-Vanilla FM and CAMF (BPR-MF backbone, PyTorch CPU / Apple MPS):
-
-```bash
-python repro_check_baseline.py --dataset gowalla --model FM   --save-per-user
-python repro_check_baseline.py --dataset gowalla --model CAMF --save-per-user
-```
-
-Each produces a `repro_check_results/per_user/gowalla_<model>.npz` with the
-per-user metric arrays (Recall, NDCG, MAP, MRR, Precision at all cutoffs)
-needed by the statistical-validation pipeline. ~90 s on Apple M2.
-
-End-to-end statistical validation (descriptive table + Wilcoxon paired tests
-+ Harmonic Mean P-value for multi-seed opponents + Holm correction):
-
-```bash
-# RP3β as pivot (default placeholder)
-python statistical_validation.py --dataset gowalla --metric RECALL --cutoff 20
-
-# FM as pivot (alternative placeholder)
-python statistical_validation.py --dataset gowalla --metric RECALL --cutoff 20 \
-    --placeholder fm \
-    --out-descr results_phase2/descriptive_fm.tsv \
-    --out-tests results_phase2/tests_fm.tsv
-```
-
-Outputs in `results_phase2/`:
-- `descriptive.tsv` — mean ± std + percentile bootstrap 95 % CI per model
-- `tests.tsv` — raw and Holm-adjusted p-values per primary comparison
-
-Methodology: see [STATISTICAL_PROTOCOL.md](STATISTICAL_PROTOCOL.md).
-Evaluator patch: see [EVALUATOR_PATCH.md](EVALUATOR_PATCH.md).
-Equivalence test for the patch: `python -m tests.test_evaluator_patch_equivalence`.
+> **Reviewer escape hatch.** If a reviewer asks "where is SLIM, where is
+> IALS?" — they are canonical baselines in the Ferrari Dacrema tradition we
+> cite — they are one command away:
+> ```
+> git checkout main -- topn_baselines_neurals/Recommenders/SLIM
+> git checkout main -- topn_baselines_neurals/Recommenders/MatrixFactorization/IALSRecommender.py
+> ```
+> Recoverable from `main`, not burned bridges.
 
 ---
 
-## What was verified in Phase 1
+## What's in `pipeline/` (and what's intentionally a stub)
 
-- **Reproducibility (Gowalla)**: ItemKNN, UserKNN, P3α, RP3β match Shehzad's
-  reference numbers to ≤ 0.06% relative deviation on Recall@20 (and ≤ 0.015%
-  on NDCG@20). RP3β and TopPop are bit-identical. See
-  [REPRODUCIBILITY_CHECK.md](REPRODUCIBILITY_CHECK.md) for the table.
-- **Data inventory**: the three datasets contain only `(user_index, item_index)`
-  binary interactions — **no timestamps, no location, no category, no session,
-  no mapping back to raw IDs**. See [DATA_INVENTORY.md](DATA_INVENTORY.md).
-- **Framework**: full map of entry points, loaders, splitters, evaluator,
-  hyperparameter search — see [CODE_ANALYSIS.md](CODE_ANALYSIS.md).
+Everything in `pipeline/` is **project code** that will be filled in next
+briefs. The current state is the minimal scaffold so that runners can be
+shaped and the pipeline can be reasoned about end-to-end:
 
-## What is open / not done in Phase 1
-
-- AmazonBook and Tmall reproducibility checks not run yet (will run on the GPU
-  machine alongside DCCF/BIGCF in Phase 2).
-- DCCF and BIGCF training not executed locally (no NVIDIA GPU on the laptop).
-- The choice between **Plan A** (no context, FM degenerates to user×item),
-  **Plan B** (rebuild dataset from raw with contextual fields), **Plan C**
-  (Plan B + re-tune all baselines) is **left open for discussion before Phase 3**.
-
-See [PHASE1_SUMMARY.md](PHASE1_SUMMARY.md) for the full open-decisions list.
+- `step01_preprocessing/` — empty, ships with a README of what the loader
+  will produce.
+- `step02_models/cars/` and `step02_models/proposed/` — empty (just READMEs)
+  until the architecture is locked.
+- `step03_evaluation/fairness.py` and `interpretability.py` — `NotImplementedError`
+  stubs with documented planned signatures.
+- `step04_statistical_validation/statistical_validation.py` — **fully working**,
+  unchanged from Phase 2. Same Wilcoxon+Pratt + HMP + Holm + bootstrap. Read
+  the co-located `STATISTICAL_PROTOCOL.md` for methodology.
 
 ---
 
-## Citing the upstream paper
+## What's in `config/`
 
-```bibtex
-@inproceedings{shehzad2025worrying,
-  title={A Worrying Reproducibility Study of Intent-Aware Recommendation Models},
-  author={Shehzad, Faisal and Ferrari Dacrema, Maurizio and Jannach, Dietmar},
-  booktitle={Proceedings of the 48th International ACM SIGIR Conference on
-             Research and Development in Information Retrieval},
-  year={2025}
-}
-```
+[`config/protocol.yaml`](config/protocol.yaml) is the canonical home for the
+**evaluation protocol constants** inherited from Shehzad. Before the cleanup,
+these constants lived hard-coded inside the three `run_experiments_*` scripts
+of the upstream repo. Those scripts are now gone; the constants are not:
+
+- `cutoff_list = [1, 5, 10, 20, 40, 50, 100]`
+- `metric_to_optimize = RECALL`, `cutoff_to_optimize = 20`
+- `n_cases = 100`, `n_random_starts = 5` (Bayesian search)
+- `validation_portion = 0.1` (per-user, deterministic — see engine)
+- Deep-model reference seeds (DCCF=2022, BIGCF=2023) kept for the record
+  even though those models are not run here.
+- The 5-seed set for stochastic models we DO train: `[2022, 2023, 42, 0, 1]`.
+- Statistical-validation policy: Wilcoxon + Pratt + HMP + Holm + percentile
+  bootstrap, `α = 0.05` familywise.
+
+The legacy best HP values for Shehzad's tuned baselines on Gowalla/AmazonBook/Tmall
+are also kept under `legacy_shehzad_best_hp:` as a frozen historical reference.
+They are NOT used in this branch — Foursquare will get its own Bayesian
+search.
+
+---
+
+## The protocol pieces that survived the rebuild
+
+Two methodological documents survived because they describe pipeline assets
+that travel with the project, not Gowalla-specific results:
+
+- [`engine/Evaluation/EVALUATOR_PATCH.md`](engine/Evaluation/EVALUATOR_PATCH.md)
+  — what the `save_per_user` patch changed in the Evaluator and what stays
+  bit-identical; the per-`user_id` pairing contract for consumers.
+- [`pipeline/step04_statistical_validation/STATISTICAL_PROTOCOL.md`](pipeline/step04_statistical_validation/STATISTICAL_PROTOCOL.md)
+  — why Wilcoxon + Pratt; why HMP (Wilson 2019) and NOT mean-per-user across
+  seeds; why Holm only on the primary family; percentile bootstrap; the
+  primary-comparison family layout.
+
+Everything else from the previous Gowalla-anchored phase (CODE_ANALYSIS,
+DATA_INVENTORY, REPRODUCIBILITY_CHECK, SHEHZAD_PROTOCOL, PHASE1_SUMMARY,
+GOWALLA_DATASETS_COMPARISON) is gone from this branch; it is preserved in
+the history of `main` and `gowalla-dataset-comparison` and accessible via
+`git show <commit>:<path>` if ever needed.
