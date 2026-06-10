@@ -657,7 +657,183 @@ def run_stage_b(city: str, out_root: Path, args) -> None:
         json.dumps(summary, indent=2, default=str), encoding="utf-8")
 
 def run_stage_c(city: str, out_root: Path, args) -> None:
-    raise NotImplementedError("Stage C will land in commit X8.")
+    """Cardinal check 2 — projection (L3).
+
+    Estimate the situation transition matrix ``T`` (eq.17) from consecutive
+    ``(z_t, z_{t+1})`` pairs in (train ∪ val), use it to predict the next
+    situation for each test row (whose predecessor in train ∪ val is its
+    ``z_prev``), and compare against a *time-only* baseline that predicts
+    ``argmax_k P(z = k | c_hour)`` estimated on (train ∪ val).
+
+    Outputs:
+        projection/transition_matrix.csv  +  transition_heatmap.png
+        projection/next_situation_f1.csv  (F1 transition vs time-only)
+        projection/dynamic_fairness.csv   +  dynamic_fairness.png
+
+    Decision rule (brief §5.C): GREEN if transition-based macro F1 beats the
+    time-only prior by a meaningful, paired-significant margin.
+    """
+    import json
+    from .l3_projection import (dynamic_fairness, estimate_transition,
+                                  macro_f1, predict_next_situation,
+                                  time_only_prior)
+    from .viz import plot_dynamic_fairness, plot_transition_heatmap
+
+    t0 = time.time()
+    out_stage = out_root / "projection"
+    out_stage.mkdir(parents=True, exist_ok=True)
+
+    sit_dir = out_root / "situations"
+    fit = np.load(sit_dir / "fit.npz", allow_pickle=True)
+    K_sit = int(max(np.asarray(fit["core_label_train"]).max(),
+                      np.asarray(fit["core_label_val"]).max(),
+                      np.asarray(fit["core_label_test"]).max()) + 1)
+    print(f"  K_sit = {K_sit}")
+
+    ds = _load_city(city)
+    df_train = ds["df_train"]; df_val = ds["df_val"]; df_test = ds["df_test"]
+    z_train = np.asarray(fit["core_label_train"]).astype(np.int32)
+    z_val = np.asarray(fit["core_label_val"]).astype(np.int32)
+    z_test = np.asarray(fit["core_label_test"]).astype(np.int32)
+
+    # --- 1. Build per-user time-ordered z sequences over (train ∪ val) ----
+    tv = pd.concat([
+        df_train.assign(_z=z_train),
+        df_val.assign(_z=z_val),
+    ], ignore_index=True)
+    tv = tv.sort_values(["user_id", "time_local"]).reset_index(drop=True)
+    sequences = []
+    for u, g in tv.groupby("user_id", sort=False):
+        sequences.append(g["_z"].values.astype(np.int32))
+    print(f"  estimated T from {len(sequences)} per-user sequences "
+          f"({sum(len(s)-1 for s in sequences if len(s)>1)} pairs)")
+
+    T, raw_counts = estimate_transition(sequences, K=K_sit, add_one_smoothing=True)
+
+    # --- 2. For each test row, find the previous z in (train ∪ val) -------
+    by_user_tv: dict[int, dict[str, np.ndarray]] = {}
+    for u, g in tv.groupby("user_id", sort=False):
+        by_user_tv[int(u)] = {
+            "t": g["time_local"].values.astype("datetime64[ns]"),
+            "z": g["_z"].values.astype(np.int32),
+        }
+    n_test = len(df_test)
+    z_prev_test = np.full(n_test, -1, dtype=np.int32)
+    users_test = df_test["user_id"].values.astype(np.int64)
+    times_test = df_test["time_local"].values.astype("datetime64[ns]")
+    for q in range(n_test):
+        rec = by_user_tv.get(int(users_test[q]))
+        if rec is None:
+            continue
+        cut = np.searchsorted(rec["t"], times_test[q], side="left")
+        if cut > 0:
+            z_prev_test[q] = rec["z"][cut - 1]
+    valid = z_prev_test >= 0
+    print(f"  z_prev resolved for {valid.sum()}/{n_test} test requests")
+
+    # --- 3. Predict next situation: transition-based vs time-only --------
+    # Transition-based: argmax T[z_prev]
+    z_pred_T = predict_next_situation(T, z_prev_test[valid])
+    # Time-only: from (train+val) build P(z | hour) and pick argmax
+    z_pred_time = time_only_prior(
+        z_train=tv["_z"].values.astype(np.int32),
+        hour_train=tv["c_hour"].values.astype(np.int32),
+        hour_test=df_test.loc[valid, "c_hour"].values.astype(np.int32),
+    )
+    y_true = z_test[valid]
+
+    f1_T = macro_f1(y_true, z_pred_T, K_sit)
+    f1_time = macro_f1(y_true, z_pred_time, K_sit)
+
+    # Paired comparison on per-request accuracy (McNemar-style 2×2)
+    correct_T = (z_pred_T == y_true)
+    correct_time = (z_pred_time == y_true)
+    n10 = int((correct_T & ~correct_time).sum())  # T correct, time wrong
+    n01 = int((~correct_T & correct_time).sum())  # T wrong, time correct
+    # McNemar with continuity correction
+    if n10 + n01 > 0:
+        mcnemar_stat = (abs(n10 - n01) - 1) ** 2 / (n10 + n01)
+    else:
+        mcnemar_stat = 0.0
+    # Chi-square df=1; p-value via scipy if available, else None.
+    try:
+        from scipy.stats import chi2
+        mcnemar_p = float(1 - chi2.cdf(mcnemar_stat, df=1))
+    except Exception:
+        mcnemar_p = None
+
+    print(f"  next-situation macro F1: "
+          f"T-based={f1_T:.3f}  time-only={f1_time:.3f}  "
+          f"Δ={f1_T - f1_time:+.3f}")
+    print(f"  paired (McNemar): T-only-correct={n10}  time-only-correct={n01}  "
+          f"p={mcnemar_p:.4f}" if mcnemar_p is not None else
+          f"  paired (McNemar): T-only-correct={n10}  time-only-correct={n01}")
+
+    # --- 4. Dynamic fairness over τ ∈ {1, 2, 3} --------------------------
+    # Need LT per situation from Stage B. Read per_situation.csv if present.
+    fair_csv = out_root / "fairness" / "per_situation.csv"
+    if fair_csv.exists():
+        fair = pd.read_csv(fair_csv)
+        fair_all = fair[fair["split"] == "all"].set_index("situation")
+        lt_per_situation = np.array(
+            [float(fair_all.loc[k, "LT"]) if k in fair_all.index else 0.0
+             for k in range(K_sit)],
+            dtype=np.float64,
+        )
+    else:
+        print("  (Stage B not run yet — dynamic fairness will use zero LTs)")
+        lt_per_situation = np.zeros(K_sit, dtype=np.float64)
+
+    LT_curve = dynamic_fairness(T, lt_per_situation, tau_max=3)
+    pd.DataFrame(LT_curve,
+                  columns=["tau=1", "tau=2", "tau=3"]).assign(
+        starting_situation=range(K_sit)
+    ).to_csv(out_stage / "dynamic_fairness.csv", index=False)
+
+    # --- 5. Dump T + heatmap + F1 + plots --------------------------------
+    pd.DataFrame(T,
+                  columns=[f"to_s{j}" for j in range(K_sit)],
+                  index=[f"from_s{i}" for i in range(K_sit)]).to_csv(
+        out_stage / "transition_matrix.csv")
+    pd.DataFrame(raw_counts,
+                  columns=[f"to_s{j}" for j in range(K_sit)],
+                  index=[f"from_s{i}" for i in range(K_sit)]).to_csv(
+        out_stage / "transition_counts.csv")
+
+    pd.DataFrame({
+        "method": ["T-based", "time-only"],
+        "macro_F1": [f1_T, f1_time],
+        "n_test_evaluated": [int(valid.sum())] * 2,
+    }).to_csv(out_stage / "next_situation_f1.csv", index=False)
+
+    plot_transition_heatmap(T, out_stage / "transition_heatmap.png",
+                              title=f"{city} — situation transition T")
+    plot_dynamic_fairness(LT_curve, out_stage / "dynamic_fairness.png",
+                            title=f"{city} — LT̄ vs τ per starting situation")
+
+    # --- 6. Verdict ------------------------------------------------------
+    delta = float(f1_T - f1_time)
+    meaningful = delta >= 0.02
+    significant = (mcnemar_p is not None and mcnemar_p < 0.05) or (n10 > n01 + 5)
+    verdict = "GREEN" if (meaningful and significant) else "FLAT"
+
+    summary = {
+        "city": city, "stage": "C", "K_sit": K_sit,
+        "macro_F1_transition": float(f1_T),
+        "macro_F1_time_only": float(f1_time),
+        "delta_F1": delta,
+        "mcnemar_T_only_correct": n10,
+        "mcnemar_time_only_correct": n01,
+        "mcnemar_p_value": mcnemar_p,
+        "verdict": verdict,
+        "n_test_evaluated": int(valid.sum()),
+        "wallclock_s": time.time() - t0,
+    }
+    (out_stage / "verdict.json").write_text(
+        json.dumps(summary, indent=2, default=str), encoding="utf-8")
+
+    print(f"\n>>> Stage C on {city}: projection verdict = {verdict}  "
+          f"(ΔF1={delta:+.3f})")
 
 def run_stage_d(city: str, out_root: Path, args) -> None:
     raise NotImplementedError("Stage D will land in commit X10.")
