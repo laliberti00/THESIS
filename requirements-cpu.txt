@@ -40,3 +40,7 @@ pyarrow                     # parquet writer for the dual-view DataFrames
 # DataFrame.to_markdown() for the floor table.
 pyyaml
 tabulate
+
+# Added for step02b (xsage) plots: PNGs for cluster scatter / transition
+# heatmap / dynamic-fairness curve / modulation bar chart.
+matplotlib
