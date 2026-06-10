@@ -118,3 +118,65 @@ def situation_confidence(kappa: float, gamma_per_request: np.ndarray) -> np.ndar
     γ is provided by the caller (computed from the rough-k-means result).
     """
     return kappa * gamma_per_request.astype(np.float32)
+
+
+# ---------------------------------------------------------------------------
+# Additive combiner (round-2 1.5) — replaces the harmonic combiner of eq.15
+# ---------------------------------------------------------------------------
+
+def fit_situation_biases_z(z_train: np.ndarray, cat_macro_train: np.ndarray,
+                              K: int, n_macros: int,
+                              lam: float = 50.0) -> np.ndarray:
+    """Per-situation per-macro bias, standardised (z-scored) within situation.
+
+    The "shrunk log-odds" formulation of ``fit_situation_biases`` returns
+    natural-log-scale ratios that span [-3, +3] easily — too large for a
+    direct *additive* combiner with the backbone logit. Here we shrink (same
+    Bayesian step) and then z-score WITHIN each situation so the bias has
+    zero mean and unit std per situation. This makes ``κ`` interpretable as
+    "additive nudge of size ≈ κ standard deviations".
+    """
+    z_train = z_train.astype(np.int64); cat_macro_train = cat_macro_train.astype(np.int64)
+    p_global = np.bincount(cat_macro_train, minlength=n_macros).astype(np.float64)
+    p_global /= p_global.sum()
+    counts_k = np.zeros((K, n_macros), dtype=np.float64)
+    np.add.at(counts_k, (z_train, cat_macro_train), 1)
+    smoothed = counts_k + lam * p_global[None, :]
+    smoothed = smoothed / smoothed.sum(axis=1, keepdims=True)
+    b = np.log(smoothed) - np.log(p_global + 1e-12)
+    # z-score within situation
+    mu = b.mean(axis=1, keepdims=True)
+    sd = b.std(axis=1, keepdims=True)
+    sd = np.where(sd < 1e-6, 1.0, sd)
+    return ((b - mu) / sd).astype(np.float32)
+
+
+def additive_combine_scores(scores_B: np.ndarray,
+                                membership_per_request: np.ndarray,
+                                biases_z_per_situation: np.ndarray,
+                                item_cat_macro: np.ndarray,
+                                kappa: float,
+                                gamma_per_request: np.ndarray) -> np.ndarray:
+    """``ŝ(u, i) = s_B(u, i) + κ_S · γ_S(v) · Σ_k r_k · b̃^{(k)}_{c(i)}``.
+
+    Matched-OFF guarantee: ``κ_S = 0`` ⇒ ``ŝ = s_B`` exactly.
+
+    Args:
+        scores_B:                    (B, I) backbone scores.
+        membership_per_request:      (B, K)
+        biases_z_per_situation:      (K, n_macros) — z-scored per situation.
+        item_cat_macro:              (I,) — each item's cat_macro index.
+        kappa:                       scalar.
+        gamma_per_request:           (B,) — 1 on core, 1/|T| on boundary.
+
+    Returns:
+        (B, I) modified score matrix.
+    """
+    if kappa == 0.0:
+        return scores_B.astype(np.float32)
+    # Σ_k r_k · b̃^{(k)} per macro → (B, n_macros)
+    s_per_macro = membership_per_request @ biases_z_per_situation
+    # Project per item → (B, I)
+    s_per_item = s_per_macro[:, item_cat_macro]
+    nudge = (kappa * gamma_per_request[:, None]).astype(np.float32) * s_per_item
+    return (scores_B + nudge).astype(np.float32)

@@ -953,14 +953,20 @@ def run_stage_d(city: str, out_root: Path, args) -> None:
     from .backbone_full import (ContextAwareFM, FeatureSpec, _build_request_features,
                                   _catalogue_indices, score_all_per_request, train_b_full)
     from .metrics import topk_from_scores
-    from .recommendation import (backbone_confidence, fit_situation_biases,
+    from .recommendation import (additive_combine_scores, backbone_confidence,
+                                    fit_situation_biases, fit_situation_biases_z,
                                     harmonic_combine, situation_confidence,
                                     situational_item_scores, softmax_scores)
     from .viz import plot_modulation_summary
 
+    combiner = getattr(args, "combiner", "harmonic")
     t0 = time.time()
-    out_stage = out_root / "recommendation"
+    out_stage = out_root / (
+        "recommendation" if combiner == "harmonic"
+        else f"recommendation_{combiner}"
+    )
     out_stage.mkdir(parents=True, exist_ok=True)
+    print(f"  combiner = {combiner}")
 
     sit_dir = out_root / "situations"
     fit = np.load(sit_dir / "fit.npz", allow_pickle=True)
@@ -1038,6 +1044,8 @@ def run_stage_d(city: str, out_root: Path, args) -> None:
     macro_tv = np.concatenate([macro_train, macro_val])
     biases = fit_situation_biases(z_tv, macro_tv, K=K_sit,
                                      n_macros=n_macros, lam=50.0)
+    biases_z = fit_situation_biases_z(z_tv, macro_tv, K=K_sit,
+                                          n_macros=n_macros, lam=50.0)
     # Item → cat_macro for situational scoring
     item_macro = ds["urm_train"].copy()  # placeholder shape — we want a vector
     # Use the build function: catalogue from train+val
@@ -1051,7 +1059,7 @@ def run_stage_d(city: str, out_root: Path, args) -> None:
     gamma_per_request = np.where(isb_test, 1.0 / np.maximum(
         (membership_test > 0).sum(axis=1), 1), 1.0).astype(np.float32)
 
-    # softmax distributions
+    # softmax distributions (used by the harmonic combiner)
     p_B = softmax_scores(scores_blind_per_req, tau=1.0)
     s_S = situational_item_scores(membership_test, biases, macro_per_item_xsage)
     p_S = softmax_scores(s_S, tau=1.0)
@@ -1088,13 +1096,24 @@ def run_stage_d(city: str, out_root: Path, args) -> None:
             # Matched OFF: exactly = backbone. Just reuse.
             res_xsage = res_blind
             scores_xsage = scores_blind_per_req
-        else:
+        elif combiner == "harmonic":
             c_S = situation_confidence(kappa, gamma_per_request)
             p_hat = harmonic_combine(p_B, p_S, c_B, c_S)
             scores_xsage = p_hat
             res_xsage = _next_item_metrics_per_user(scores_xsage, i_target,
                                                        excl, u_test,
                                                        cutoffs=cutoffs)
+        elif combiner == "additive":
+            scores_xsage = additive_combine_scores(
+                scores_blind_per_req, membership_test, biases_z,
+                macro_per_item_xsage, kappa=kappa,
+                gamma_per_request=gamma_per_request,
+            )
+            res_xsage = _next_item_metrics_per_user(scores_xsage, i_target,
+                                                       excl, u_test,
+                                                       cutoffs=cutoffs)
+        else:
+            raise ValueError(f"Unknown combiner: {combiner!r}")
         xsage_per_kappa[kappa] = scores_xsage
         res_xsage_by_kappa[kappa] = res_xsage
         r20 = float(res_xsage["metrics"][20]["RECALL"].mean())

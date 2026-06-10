@@ -44,6 +44,10 @@ def main() -> int:
     parser.add_argument("--kappa", type=float, nargs="+",
                         default=[0.0, 0.1, 0.25, 0.5, 1.0],
                         help="κ_S sweep for Stage D")
+    parser.add_argument("--combiner", choices=["harmonic", "additive"],
+                        default="harmonic",
+                        help="Stage D combiner: harmonic (eq.15, original) "
+                             "or additive (round-2 1.5).")
     parser.add_argument("--seed", type=int, default=42)
     parser.add_argument("-v", "--verbose", action="store_true")
     args = parser.parse_args()
