@@ -473,7 +473,188 @@ def _membership_from_assign(k_star: np.ndarray, competing: np.ndarray,
 # ---------------------------------------------------------------------------
 
 def run_stage_b(city: str, out_root: Path, args) -> None:
-    raise NotImplementedError("Stage B will land in commit X7.")
+    """Cardinal check 1 — per-situation fairness lens on the backbone's top-K.
+
+    Layers:
+        1. Load Stage A artefacts (test situation labels, boundary flag).
+        2. Refit (or load cached) FM-vanilla on train+val → full score matrix.
+        3. For each test request, build the top-K list under the floor's
+           ``exclude_seen=True`` rule (mask the user's train+val history).
+        4. Compute per-situation ``LT`` (long-tail ratio, eq.11) and ``KL``
+           against the global top-K item distribution (eq.12), separately for
+           all / core / boundary requests.
+        5. Per-situation available long-tail share (structural control, see
+           brief §5 Stage B): the long-tail rate among items the typical user
+           in this situation *could* still get (i.e. has not yet seen).
+        6. Decision rule: GREEN if at least one situation's KL ≥ 1.5 × global
+           AND its top-LT is not fully explained by the structural baseline.
+
+    Outputs:
+        fairness/per_situation.csv
+        fairness/top_items_by_situation.csv  (top 10 items per situation, for
+                                                 inspection)
+        fairness/verdict.json
+    """
+    import json
+    from .backbone import excluded_mask, load_or_refit
+    from .metrics import (kl_divergence, long_tail_groups, long_tail_ratio,
+                           topk_from_scores)
+
+    K_top = 20
+    SHORT_HEAD_SHARE = 0.20
+    LENS_THRESHOLD_RATIO = 1.5
+
+    t0 = time.time()
+    out_stage = out_root / "fairness"
+    out_stage.mkdir(parents=True, exist_ok=True)
+    sit_dir = out_root / "situations"
+    if not (sit_dir / "fit.npz").exists():
+        raise FileNotFoundError(
+            f"Stage A artefacts missing at {sit_dir / 'fit.npz'} — "
+            f"run Stage A first.")
+
+    print(f"  loading Stage A fit + dataset ...")
+    fit = np.load(sit_dir / "fit.npz", allow_pickle=True)
+    ds = _load_city(city)
+
+    # Backbone scores
+    print(f"  loading / refitting backbone (FM-vanilla refit on train+val) ...")
+    backbone_scores = load_or_refit(city, model_name="FM", verbose=args.verbose)
+    excl = excluded_mask(city, ds["n_items"])
+
+    # Item popularity from train+val (= 1 row sum of the URM)
+    pop = np.asarray((ds["urm_train"] + ds["urm_val"]).sum(axis=0)).ravel()
+    G0_mask, G1_mask = long_tail_groups(pop, short_head_share=SHORT_HEAD_SHARE)
+    print(f"  long-tail split: G0 (head) = {int(G0_mask.sum())} items, "
+          f"G1 (tail) = {int(G1_mask.sum())}  ({SHORT_HEAD_SHARE:.0%} cut-off)")
+
+    # Per-request top-K
+    df_test = ds["df_test"]
+    n_test = len(df_test)
+    u_test = df_test["u_idx"].values.astype(np.int32)
+    z_test = np.asarray(fit["core_label_test"]).astype(np.int32)
+    isb_test = np.asarray(fit["is_boundary_test"]).astype(bool)
+    K_sit = int(z_test.max() + 1)
+    n_items = int(ds["n_items"])
+
+    print(f"  computing top-{K_top} lists for {n_test} test requests ...")
+    top_per_request = np.zeros((n_test, K_top), dtype=np.int32)
+    # Cache user-wise excluded indices for speed.
+    user_excl: dict[int, np.ndarray] = {}
+    for q in range(n_test):
+        u = int(u_test[q])
+        if u not in user_excl:
+            user_excl[u] = excl.indices[excl.indptr[u]:excl.indptr[u + 1]]
+        s = backbone_scores[u].copy()
+        cols = user_excl[u]
+        if len(cols):
+            s[cols] = -np.inf
+        top_per_request[q] = topk_from_scores(s, K_top)
+
+    # Global reference distribution and global LT
+    all_items = top_per_request.flatten()
+    global_dist = np.bincount(all_items, minlength=n_items).astype(np.float64)
+    global_dist /= max(global_dist.sum(), 1.0)
+    global_LT = float(G1_mask[all_items].mean())
+    print(f"  global LT(top-{K_top}) across test requests = {global_LT:.3f}")
+
+    # Per-situation LT / KL
+    print(f"  per-situation lens (K_sit={K_sit}) ...")
+    rows = []
+    avail_LT_per_situation = {}
+    for k in range(K_sit):
+        for split_name, mask in (
+            ("all", z_test == k),
+            ("core", (z_test == k) & ~isb_test),
+            ("boundary", (z_test == k) & isb_test),
+        ):
+            n_req = int(mask.sum())
+            if n_req == 0:
+                rows.append({"situation": k, "split": split_name,
+                             "n_requests": 0, "LT": None, "KL": None})
+                continue
+            items = top_per_request[mask].flatten()
+            d = np.bincount(items, minlength=n_items).astype(np.float64)
+            d /= max(d.sum(), 1.0)
+            lt = float(G1_mask[items].mean())
+            kl = kl_divergence(d, global_dist)
+            rows.append({"situation": k, "split": split_name,
+                         "n_requests": n_req, "LT": lt, "KL": kl,
+                         "n_items_used": int(len(items))})
+
+        # Structural control: among items the typical user in situation k could
+        # still receive (i.e. not in train∪val), what's the long-tail share?
+        users_k = np.unique(u_test[z_test == k])
+        shares = []
+        for u in users_k:
+            seen = excl.indices[excl.indptr[u]:excl.indptr[u + 1]]
+            allowed = np.ones(n_items, dtype=bool); allowed[seen] = False
+            if allowed.any():
+                shares.append(float(G1_mask[allowed].mean()))
+        avail_LT_per_situation[k] = float(np.mean(shares)) if shares else None
+
+    # Save per-situation table.
+    df_rows = pd.DataFrame(rows)
+    df_rows["available_LT"] = df_rows["situation"].map(avail_LT_per_situation)
+    df_rows["global_LT"] = global_LT
+    df_rows["LT_minus_available"] = df_rows["LT"] - df_rows["available_LT"]
+    df_rows.to_csv(out_stage / "per_situation.csv", index=False)
+
+    # Top items per situation (inspection).
+    top_inspect = []
+    for k in range(K_sit):
+        items = top_per_request[z_test == k].flatten()
+        if not len(items): continue
+        c = np.bincount(items, minlength=n_items)
+        order = np.argsort(c)[::-1][:10]
+        for rank, i in enumerate(order, 1):
+            top_inspect.append({"situation": k, "rank_in_situation": rank,
+                                "item_idx": int(i),
+                                "frequency_in_topK": int(c[i]),
+                                "is_long_tail": bool(G1_mask[int(i)]),
+                                "popularity_count_in_train_val": int(pop[int(i)])})
+    pd.DataFrame(top_inspect).to_csv(out_stage / "top_items_by_situation.csv",
+                                       index=False)
+
+    # Verdict — GREEN if any situation's KL ≥ 1.5 × global mean AND that
+    # situation's LT exceeds the structural-availability baseline by ≥ 5 pp.
+    global_KL_mean = df_rows.loc[df_rows["split"] == "all", "KL"].mean()
+    candidates_green = []
+    for _, r in df_rows.iterrows():
+        if r["split"] != "all" or r["KL"] is None: continue
+        kl_ratio = float(r["KL"] / max(global_KL_mean, 1e-9))
+        lt_excess = float(r["LT"] - r["available_LT"]) if r["available_LT"] is not None else 0.0
+        if kl_ratio >= LENS_THRESHOLD_RATIO and abs(lt_excess) >= 0.05:
+            candidates_green.append({
+                "situation": int(r["situation"]),
+                "KL": float(r["KL"]), "KL_ratio_vs_global": kl_ratio,
+                "LT": float(r["LT"]), "available_LT": float(r["available_LT"]),
+                "lt_excess_over_available": lt_excess,
+            })
+    verdict = "GREEN" if candidates_green else "FLAT"
+    print(f"\n>>> Stage B on {city}: lens verdict = {verdict}")
+    if candidates_green:
+        for c in candidates_green:
+            print(f"     situation {c['situation']}: "
+                  f"KL={c['KL']:.3f} (×{c['KL_ratio_vs_global']:.2f} global)  "
+                  f"LT={c['LT']:.3f} vs available={c['available_LT']:.3f}  "
+                  f"(excess {c['lt_excess_over_available']:+.3f})")
+    else:
+        print(f"     per-situation KL hovers around global (max ratio "
+              f"{(df_rows.loc[df_rows['split']=='all','KL']/max(global_KL_mean,1e-9)).max():.2f}); "
+              "no inequity sink that beats the structural-scarcity control.")
+
+    summary = {
+        "city": city, "stage": "B", "K_sit": K_sit, "K_top": K_top,
+        "short_head_share": SHORT_HEAD_SHARE,
+        "global_LT": global_LT,
+        "global_KL_mean_all_split": float(global_KL_mean),
+        "verdict": verdict,
+        "inequity_sinks": candidates_green,
+        "wallclock_s": time.time() - t0,
+    }
+    (out_stage / "verdict.json").write_text(
+        json.dumps(summary, indent=2, default=str), encoding="utf-8")
 
 def run_stage_c(city: str, out_root: Path, args) -> None:
     raise NotImplementedError("Stage C will land in commit X8.")
