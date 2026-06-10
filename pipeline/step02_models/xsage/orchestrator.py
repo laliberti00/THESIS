@@ -132,6 +132,7 @@ def _load_city(city: str) -> dict:
 # ---------------------------------------------------------------------------
 
 def _build_perception(ds: dict, n: int, gamma: float, H: int, beta: float,
+                       intent_mode: str = "hard",
                        attributes: tuple[str, ...] = DEFAULT_ATTRIBUTES,
                        verbose: bool = False) -> dict:
     """Build c̃, W, attractors, m, e for train / val / test under causal rules.
@@ -181,9 +182,9 @@ def _build_perception(ds: dict, n: int, gamma: float, H: int, beta: float,
                               n_macros, gamma=gamma)
     m_test = compute_profile(l0_test.recent_macro, l0_test.n_prior,
                                n_macros, gamma=gamma)
-    e_train = compute_intent(m_train, W, attractors, H=H, beta=beta)
-    e_val = compute_intent(m_val, W, attractors, H=H, beta=beta)
-    e_test = compute_intent(m_test, W, attractors, H=H, beta=beta)
+    e_train = compute_intent(m_train, W, attractors, H=H, beta=beta, mode=intent_mode)
+    e_val = compute_intent(m_val, W, attractors, H=H, beta=beta, mode=intent_mode)
+    e_test = compute_intent(m_test, W, attractors, H=H, beta=beta, mode=intent_mode)
 
     v_train = np.concatenate([c_train, e_train], axis=1).astype(np.float32)
     v_val = np.concatenate([c_val, e_val], axis=1).astype(np.float32)
@@ -350,8 +351,10 @@ def run_stage_a(city: str, out_root: Path, args) -> None:
 
     print(f"  building perception (n={args.n}, H={args.H}, "
           f"gamma={args.gamma}, beta={args.beta}) ...")
+    intent_mode = getattr(args, "intent_mode", "hard")
     P = _build_perception(ds, n=args.n, gamma=args.gamma, H=args.H,
-                            beta=args.beta, verbose=args.verbose)
+                            beta=args.beta, intent_mode=intent_mode,
+                            verbose=args.verbose)
 
     # --- (K, ε) selection ----------------------------------------------------
     do_sweep = (args.K == 6 and args.eps is None)

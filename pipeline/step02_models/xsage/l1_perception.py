@@ -187,9 +187,22 @@ def compute_profile(recent_macro: np.ndarray,
 
 
 def compute_intent(m: np.ndarray, W: np.ndarray, attractors: np.ndarray,
-                    H: int = 2, beta: float = 0.7) -> np.ndarray:
-    """``e = norm_A( m^T (Σ_{k=1..H} β^k W^k) )``. The output is normalised
-    over the attractor subset (other entries are zeroed before re-normalising).
+                    H: int = 2, beta: float = 0.7,
+                    mode: str = "hard", top_r: int = 5) -> np.ndarray:
+    """``e = norm( m^T (Σ_{k=1..H} β^k W^k) )`` over a chosen subset of macros.
+
+    Modes (round-2 1.4):
+        "hard"       (default, eq.5): restrict to attractors only — the indeg
+                     ≥ mean cutoff. On TKY this collapses the descriptor to
+                     2 active dimensions (Shop & Service, Travel & Transport).
+        "all"        : no cutoff — keep every macro dimension, weighted by
+                     its reachability. Yields a denser, higher-dimensional
+                     descriptor — better for sparse-attractor cities.
+        "soft_topr"  : per row, keep the ``top_r`` most-reachable macros
+                     (zero the rest, then renormalise). Balances richness
+                     with focus.
+
+    Returns ``(B, n_macros)`` row-stochastic float32.
     """
     K = W.shape[0]
     acc = np.zeros_like(W)
@@ -198,8 +211,20 @@ def compute_intent(m: np.ndarray, W: np.ndarray, attractors: np.ndarray,
         Wk = Wk @ W
         acc += (beta ** k) * Wk
     raw = m.astype(np.float64) @ acc                       # (B, K)
-    # restrict to attractors
-    raw = raw * attractors.astype(np.float64)[None, :]
+
+    if mode == "hard":
+        raw = raw * attractors.astype(np.float64)[None, :]
+    elif mode == "all":
+        pass
+    elif mode == "soft_topr":
+        # per row, zero out everything outside the top-r
+        idx_topr = np.argpartition(raw, -top_r, axis=1)[:, -top_r:]
+        mask = np.zeros_like(raw, dtype=bool)
+        np.put_along_axis(mask, idx_topr, True, axis=1)
+        raw = raw * mask.astype(np.float64)
+    else:
+        raise ValueError(f"Unknown intent mode {mode!r}")
+
     s = raw.sum(axis=1, keepdims=True)
     safe = np.where(s > 0, s, 1.0)
     e = raw / safe

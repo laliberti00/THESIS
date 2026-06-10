@@ -48,6 +48,12 @@ def main() -> int:
                         default="harmonic",
                         help="Stage D combiner: harmonic (eq.15, original) "
                              "or additive (round-2 1.5).")
+    parser.add_argument("--intent-mode", choices=["hard", "all", "soft_topr"],
+                        default="hard",
+                        help="Intent vector mode (round-2 1.4). 'hard' "
+                             "(default) is the attractor-cutoff of eq.5; "
+                             "'all' keeps every macro weighted by "
+                             "reachability; 'soft_topr' keeps top-r.")
     parser.add_argument("--seed", type=int, default=42)
     parser.add_argument("-v", "--verbose", action="store_true")
     args = parser.parse_args()
@@ -59,7 +65,12 @@ def main() -> int:
     stages = ["A", "B", "C", "D", "E"] if args.stage == "all" else [args.stage]
 
     for city in cities:
-        out_root = REPO_ROOT / "outputs" / city / "xsage"
+        # Round-2 1.4: intent_mode != "hard" goes into a sibling directory so
+        # the default-mode artefacts are preserved.
+        out_root = REPO_ROOT / "outputs" / city / (
+            "xsage" if args.intent_mode == "hard"
+            else f"xsage_intent_{args.intent_mode}"
+        )
         out_root.mkdir(parents=True, exist_ok=True)
         for stage in stages:
             print(f"\n>>> [{city}] Stage {stage}")
