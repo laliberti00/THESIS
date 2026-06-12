@@ -55,3 +55,4 @@ outputs/*
 *.bak
 *.orig
 outputs.snapshot_*
+outputs.snapshot_round2_*
