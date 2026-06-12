@@ -54,6 +54,13 @@ def main() -> int:
                              "(default) is the attractor-cutoff of eq.5; "
                              "'all' keeps every macro weighted by "
                              "reachability; 'soft_topr' keeps top-r.")
+    parser.add_argument("--intent-transit",
+                        choices=["keep", "collapse", "mask"], default="keep",
+                        help="Round-3 C2 transit-aware intent. 'mask' = "
+                             "drop Travel & Transport from sequences before "
+                             "estimating W and from the recency profile; "
+                             "'collapse' = exclude T&T from attractor "
+                             "candidacy only; 'keep' = vanilla (default).")
     parser.add_argument("--seed", type=int, default=42)
     parser.add_argument("-v", "--verbose", action="store_true")
     args = parser.parse_args()
@@ -65,12 +72,15 @@ def main() -> int:
     stages = ["A", "B", "C", "D", "E"] if args.stage == "all" else [args.stage]
 
     for city in cities:
-        # Round-2 1.4: intent_mode != "hard" goes into a sibling directory so
-        # the default-mode artefacts are preserved.
-        out_root = REPO_ROOT / "outputs" / city / (
-            "xsage" if args.intent_mode == "hard"
-            else f"xsage_intent_{args.intent_mode}"
-        )
+        # Round-2 1.4: intent_mode != "hard" goes into a sibling directory.
+        # Round-3 C2: intent_transit != "keep" combines with the intent_mode tag.
+        bits = ["xsage"]
+        if args.intent_mode != "hard":
+            bits.append(f"intent_{args.intent_mode}")
+        if args.intent_transit != "keep":
+            bits.append(f"transit_{args.intent_transit}")
+        out_root_name = "_".join(bits)
+        out_root = REPO_ROOT / "outputs" / city / out_root_name
         out_root.mkdir(parents=True, exist_ok=True)
         for stage in stages:
             print(f"\n>>> [{city}] Stage {stage}")

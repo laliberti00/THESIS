@@ -133,6 +133,8 @@ def _load_city(city: str) -> dict:
 
 def _build_perception(ds: dict, n: int, gamma: float, H: int, beta: float,
                        intent_mode: str = "hard",
+                       intent_transit: str = "keep",
+                       transit_macros: tuple[str, ...] = ("Travel & Transport",),
                        attributes: tuple[str, ...] = DEFAULT_ATTRIBUTES,
                        verbose: bool = False) -> dict:
     """Build c̃, W, attractors, m, e for train / val / test under causal rules.
@@ -169,19 +171,30 @@ def _build_perception(ds: dict, n: int, gamma: float, H: int, beta: float,
     c_test = contrib.transform(ds["df_test"])
 
     # Macro transition + attractors (estimated on train only).
-    W = estimate_macro_transition(ds["df_train"], macro_to_idx)
-    attractors = find_attractors(W)
+    W = estimate_macro_transition(ds["df_train"], macro_to_idx,
+                                       transit_macros=list(transit_macros),
+                                       transit_mode=intent_transit)
+    transit_indices = [macro_to_idx[t] for t in transit_macros if t in macro_to_idx]
+    exclude_from_attractors = (transit_indices
+                                  if intent_transit in ("mask", "collapse")
+                                  else None)
+    attractors = find_attractors(W, exclude_indices=exclude_from_attractors)
     if verbose:
         print(f"  attractors: "
               f"{[ds['idx_to_macro'][i] for i in np.where(attractors)[0]]}")
 
     # Recency profile m and intent vector e.
+    exclude_recency = (transit_indices
+                          if intent_transit == "mask" else None)
     m_train = compute_profile(l0_train.recent_macro, l0_train.n_prior,
-                                n_macros, gamma=gamma)
+                                n_macros, gamma=gamma,
+                                exclude_macros=exclude_recency)
     m_val = compute_profile(l0_val.recent_macro, l0_val.n_prior,
-                              n_macros, gamma=gamma)
+                              n_macros, gamma=gamma,
+                              exclude_macros=exclude_recency)
     m_test = compute_profile(l0_test.recent_macro, l0_test.n_prior,
-                               n_macros, gamma=gamma)
+                               n_macros, gamma=gamma,
+                               exclude_macros=exclude_recency)
     e_train = compute_intent(m_train, W, attractors, H=H, beta=beta, mode=intent_mode)
     e_val = compute_intent(m_val, W, attractors, H=H, beta=beta, mode=intent_mode)
     e_test = compute_intent(m_test, W, attractors, H=H, beta=beta, mode=intent_mode)
@@ -352,8 +365,10 @@ def run_stage_a(city: str, out_root: Path, args) -> None:
     print(f"  building perception (n={args.n}, H={args.H}, "
           f"gamma={args.gamma}, beta={args.beta}) ...")
     intent_mode = getattr(args, "intent_mode", "hard")
+    intent_transit = getattr(args, "intent_transit", "keep")
     P = _build_perception(ds, n=args.n, gamma=args.gamma, H=args.H,
                             beta=args.beta, intent_mode=intent_mode,
+                            intent_transit=intent_transit,
                             verbose=args.verbose)
 
     # --- (K, ε) selection ----------------------------------------------------

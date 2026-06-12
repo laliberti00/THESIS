@@ -128,16 +128,34 @@ def fit_contribution_functions(df_train: pd.DataFrame,
 
 def estimate_macro_transition(df_train: pd.DataFrame,
                                 macro_to_idx: dict[str, int],
-                                add_one_smoothing: bool = True) -> np.ndarray:
+                                add_one_smoothing: bool = True,
+                                transit_macros: list[str] | None = None,
+                                transit_mode: str = "keep") -> np.ndarray:
     """``W[c, c'] = P̂(next = c' | current = c)`` from successive macros within
     the same user, in chronological order.
+
+    Round-3 C2 transit-aware modes:
+        ``keep``     (default): vanilla — all macros are transition states.
+        ``collapse``: W computed as in ``keep``; transit handling happens at
+                      attractor selection time (caller drops transit from
+                      candidacy).
+        ``mask``    : the transit macro(s) are *contracted out* of the
+                      sequence before counting. For each user sequence we
+                      drop every T&T row; A→T&T→B then becomes a direct
+                      A→B edge (with composed-from-data probability, not
+                      a simulated product).
     """
     n = len(macro_to_idx)
     counts = np.zeros((n, n), dtype=np.float64)
     df = df_train.sort_values(["user_id", "time_local"]).reset_index(drop=True)
     m = np.array([macro_to_idx[c] for c in df["cat_macro"].values], dtype=np.int32)
     u = df["user_id"].values
-    # transitions only inside the same user
+    if transit_mode == "mask" and transit_macros:
+        transit_idx = {macro_to_idx[t] for t in transit_macros if t in macro_to_idx}
+        if transit_idx:
+            keep = ~np.isin(m, list(transit_idx))
+            m = m[keep]
+            u = u[keep]
     same = u[1:] == u[:-1]
     src = m[:-1][same]; dst = m[1:][same]
     np.add.at(counts, (src, dst), 1)
@@ -147,10 +165,20 @@ def estimate_macro_transition(df_train: pd.DataFrame,
     return W
 
 
-def find_attractors(W: np.ndarray) -> np.ndarray:
-    """``A = {c : indeg(c) ≥ mean indeg}``. Returns a boolean mask of size K."""
+def find_attractors(W: np.ndarray,
+                      exclude_indices: list[int] | None = None) -> np.ndarray:
+    """``A = {c : indeg(c) ≥ mean indeg}``. Returns a boolean mask of size K.
+
+    Round-3 C2: ``exclude_indices`` removes some macros (e.g. transit) from
+    attractor candidacy. They are forced to ``False`` in the mask regardless
+    of their indeg.
+    """
     indeg = W.sum(axis=0)
-    return indeg >= indeg.mean()
+    out = indeg >= indeg.mean()
+    if exclude_indices:
+        for i in exclude_indices:
+            out[i] = False
+    return out
 
 
 # ---------------------------------------------------------------------------
@@ -160,15 +188,20 @@ def find_attractors(W: np.ndarray) -> np.ndarray:
 def compute_profile(recent_macro: np.ndarray,
                      n_prior: np.ndarray,
                      n_macros: int,
-                     gamma: float = 0.6) -> np.ndarray:
+                     gamma: float = 0.6,
+                     exclude_macros: list[int] | None = None) -> np.ndarray:
     """``m_c ∝ Σ γ^j 𝟙[macro_{j} = c]`` over the last n entries (most recent
     first → j=0).  Empty histories → uniform.
     """
     B, n = recent_macro.shape
     m = np.zeros((B, n_macros), dtype=np.float32)
     g = np.array([gamma ** j for j in range(n)], dtype=np.float32)
+    exclude_set = set(exclude_macros) if exclude_macros else set()
     for j in range(n):
         valid = recent_macro[:, j] >= 0
+        if exclude_set:
+            # also drop transit positions in the window
+            valid = valid & ~np.isin(recent_macro[:, j], list(exclude_set))
         if not valid.any():
             continue
         row_ix = np.where(valid)[0]
