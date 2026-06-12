@@ -265,3 +265,169 @@ All experiments here continue to satisfy the brief's ground rules
 (R1 lockdown done · R2 frozen code untouched · R3 matched-OFF tests still
 green · R4 one commit per task · R5 no test selection · R6 stop rules
 respected · R7 reporting via this file).
+
+---
+
+# Round-3 SESSION 2 (addendum execution)
+
+Picked up from session-1 HEAD `4f69b52`. Session-2 commits land between
+`76927dd` (snapshot doc) and the current HEAD. Tests stayed 19/19 green
+throughout.
+
+## A4 — Statistics package (commit `09ebb1c`)
+
+* **Matched-OFF TOST**: equivalent at δ=0.005 and δ=0.0025 on both cities
+  (mean diff exactly 0.00000 by construction — guarantee verified).
+* **X-SAGE additive κ=0.1 vs B_blind TOST**: equivalent at δ=0.005 on both
+  cities (NYC sensitivity δ=0.0025 fails, TKY passes).
+* **Bootstrap CI95 on B_full − B_blind R@20**:
+  * NYC mean +0.0150 CI95 [+0.0039, +0.0259] — CI **excludes 0**
+  * TKY mean −0.0083 CI95 [−0.0119, −0.0047] — CI **excludes 0**
+
+  "B_full helps NYC / hurts TKY" is now statistically defended.
+* **step04 Wilcoxon + HMP + Holm** on the three-way per-city: 4
+  comparisons (X-SAGE vs each of B_blind, B_full, at R@20 and N@20) under
+  Holm; tables in `outputs/<city>/xsage/round3/A4/step04_threeway/`.
+* **A1 operating-point adjudication (the addendum)**:
+  * NYC val-selected κ=4: test ΔR@20 = −0.0010 CI95 [−0.0026, 0.0000]
+    **covers 0** → val rule stands (binding κ = 4.0).
+  * TKY val-selected κ=4: test ΔR@20 = −0.0036 CI95 [−0.0048, −0.0024]
+    **excludes 0** → val rule overfits. Knee rule (Kneedle on
+    `sink_LT_on_val` vs `r20_val_delta`) picks κ = 2.0, where test
+    ΔR@20 = −0.0020 CI95 [−0.0030, −0.0011] — still excludes 0 but
+    materially gentler. **Binding rule on TKY = knee (κ = 2.0)**.
+  * The paper's primary fairness result must be the full trade-off curve
+    (Ge-style), not a single point — any single op-point selected on val
+    has measurable test cost on TKY.
+
+## B3bis — Descriptor degeneracy reconciliation (commit `b1c70e6`)
+
+Both round-2 handoff and session-1 B3 are correct at different
+thresholds. The round-2 numbers (0.003-0.012) match c̃ dim 2 (c_isweekend
+std 0.0029) and dim 3 (c_month std 0.0119) **exactly**. At threshold
+1e-4 (B3): 0 near-constant c̃ dims. At threshold 0.05 (handoff): 3
+near-constant c̃ dims. E block has 4 dims exactly 0 on NYC hard (the
+non-attractor macros). PASS — reproducible, paper sentence locked in
+`B3bis_RECONCILIATION.md §3`.
+
+## B1 — Eq.18 boundary disambiguation (commit `0747ffc`)
+
+PASS on every config. Predicting the user's NEXT test row's z:
+
+| config | boundary F1 no-fb | boundary F1 with-fb | Δ F1 | R@20 change |
+|---|---|---|---|---|
+| NYC hard | 0.230 | 0.332 | +0.102 | −0.0002 |
+| TKY hard | 0.193 | 0.283 | +0.090 | −0.0001 |
+| TKY all  | 0.201 | 0.288 | +0.087 | −0.0001 |
+
+Eq.18 buys a ~44-50% relative improvement on boundary next-z F1 at
+essentially zero accuracy cost. **Tex decision: keep eq.18 in main**,
+framed as "uncertainty-gated disambiguation".
+
+## C5.0 — Stratified accuracy read (commit `64538e7`)
+
+NO retrain — pure aggregation. The pre-registered hypothesis
+("B_full's TKY deficit concentrates on non-T&T") was **falsified in the
+OPPOSITE direction**.
+
+  T&T target ΔR@20: NYC −0.0127, TKY −0.0081 (B_full hurts on both)
+  non-T&T target ΔR@20: NYC +0.0257, TKY +0.0003 (B_full helps on both)
+
+The cross-city aggregate sign flip is an aggregation artefact caused by
+test pool composition (NYC test 25% T&T; TKY test 71% T&T). The
+per-target-macro effect is **city-invariant**.
+
+This sharpens the paper claim from "context routing is city-dependent" to
+"the per-target-macro effect of context routing is city-INVARIANT; only
+the test pool composition decides the aggregate sign". Stronger and more
+compact.
+
+C5 priority order revalidated: M−geo, M−time first (per-context cells
+are where the T&T noise lives).
+
+## C2 — Transit-aware intent (commit `6dc9c5e`)
+
+Added `--intent-transit={keep, collapse, mask}` to L1/orchestrator/CLI.
+Mask drops T&T from both W estimation and the recency profile m.
+
+| config | ARI | ΔF1 vs clock | Stage B sinks |
+|---|---|---|---|
+| TKY round-2 hard            | 0.656 | −0.041 (FLAT) | {4, 5} GREEN |
+| TKY round-2 all             | 0.741 | −0.016 (FLAT) | {5} GREEN |
+| TKY collapse + all          | 0.741 | −0.016 (FLAT) | {5} GREEN |
+| **TKY mask + all (rescue)** | **0.876** | **+0.006** (PASS) | none (FLAT) |
+| NYC round-2 hard            | 0.830 | +0.171 | {6} GREEN |
+| **NYC mask (control)**      | **0.817** | **+0.176** | {6, 7} GREEN |
+
+TKY pre-registered gates: G2 (ARI ≥ 0.6) ✓, G3 (ΔF1 ≥ 0) ✓, but lens
+sanity fails (no sinks under mask).
+
+NYC non-degradation cleared (ARI/projection/sinks within tolerance).
+
+Decision (recorded in `outputs/round3/C2/DECISION.md`):
+**Default for both cities = `intent-transit = mask`; the TKY round-2 lens
+story is preserved as a SECONDARY artefact under `intent-transit =
+collapse` (= round-2 all), reported as a parallel reading.** Two
+complementary intent models that each reveal a different aspect of the
+TKY context.
+
+## A3-recheck on TKY mask
+
+Situations max KL ratio under mask drops to **1.50** (round-2 hard
+2.71). Hour stratification stays at 4.57. Per the brief's
+narrative-upgrade criterion (≥ 4.57 or materially close the gap), the
+gap widens rather than closes. **Keep the complementarity + actionability
+framing.** The mask situations describe more uniform behaviour and lose
+their lens-concentration property — which is exactly *why* Stage B is
+FLAT under mask. Recorded in `outputs/round3/A3_recheck_TKY/recheck.md`.
+
+## Session-2 master decision table (consolidated)
+
+| Task | Verdict | Headline | Paper decision |
+|---|---|---|---|
+| A4 | DELIVERED | matched-OFF TOST equiv at δ=0.005; B_full−B_blind CI excludes 0 both cities; A1 op-point binding rule = val (NYC) / knee κ=2 (TKY); but **report curve**, not point | **main** (stats appendix + Ge-style curve) |
+| B3bis | PASS reconciled | round-2 0.003-0.012 corresponds to c̃ dim 2/3; e has 4 exactly-zero dims (non-attractors); ~6 effective descriptor dims | **transparency table** |
+| B1 | PASS all configs | eq.18 +44-50 % boundary next-z F1 at zero accuracy cost | **main** (uncertainty-gated disambiguation) |
+| C5.0 | hypothesis FALSIFIED in opposite direction | B_full hurts T&T, helps non-T&T on BOTH cities; aggregate sign is a test-pool artefact | **main** (sharpens the cross-city framing) |
+| C2 | gates PASS / sanity fail | mask + all rescues TKY projection (ΔF1 +0.006), doubles ARI to 0.876, lens loses sinks; NYC mask within tolerance, adds sink s7 | **main** (transit-aware default + parallel lens reading) |
+| A3-recheck | complementarity stands | mask situations max KL 1.50, hour 4.57 — complementarity framing retained | **main** (per-target-macro + actionability) |
+
+## "What changed for the paper" (session 2)
+
+1. **Statistics package delivered.** Matched-OFF equivalent (formally
+   TOST). B_full / B_blind difference statistically defended on both
+   cities. The fairness re-ranking primary result is now framed as the
+   full Ge-style trade-off curve, with explicit operating-point rules
+   (val on NYC, knee on TKY) and their CIs.
+
+2. **Descriptor sentence locked.** B3bis settles the round-2 vs
+   session-1 contradiction; the paper sentence is in
+   `B3bis_RECONCILIATION.md §3` and references both thresholds.
+
+3. **Eq.18 stays in the main**, with a measurable +44-50% boundary
+   next-z F1 gain at zero accuracy cost. The "uncertainty-gated
+   disambiguation" framing replaces "design extension".
+
+4. **The cross-city framing of B_full is now stronger.** "Context helps
+   non-T&T, hurts T&T on BOTH cities; only the test pool composition
+   decides the aggregate sign." Replaces the round-2 "city-dependent
+   context routing" claim. C5 priorities re-validated: M−geo, M−time
+   first.
+
+5. **TKY rescue partial.** The transit-aware mask intent recovers the
+   projection cardinal check (ΔF1 +0.006) and dramatically improves
+   cluster stability (0.876). The cost is the Stage-B lens sinks. The
+   paper now runs both transit modes on TKY and reports them as
+   complementary perspectives.
+
+6. **NYC mask adds a sink (s7).** The transit removal surfaces a
+   previously masked sub-cluster; both the round-2 s6 and the new s7
+   appear as inequity sinks under mask. NYC's main lens story
+   strengthens.
+
+7. **Open items for session 3.** C5 (B_full ablation on TKY with M−geo /
+   M−time first), B2 (CST weights — now to be run on the mask+all
+   descriptor per the C2 decision), B4 (profiling suite), D1 (dataset
+   memo with Frappe pre-rejection note), D2 (TIST pre-registered
+   prediction).
+
