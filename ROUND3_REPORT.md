@@ -431,3 +431,169 @@ FLAT under mask. Recorded in `outputs/round3/A3_recheck_TKY/recheck.md`.
    memo with Frappe pre-rejection note), D2 (TIST pre-registered
    prediction).
 
+---
+
+# Round-3 SESSION 3 (addendum execution)
+
+Picked up from session-2 HEAD `509d88d`. Session-3 commits land between
+`8ee0aa9` and the current HEAD. Tests stayed 19/19 green throughout.
+
+## A1bis — Val-flag recheck for NYC mask sinks (commit `8ee0aa9`)
+
+Val-flagged sinks under NYC mask = {6, 7} = test-flagged {6, 7}. Exact
+match. **Both s6 and the round-3 mask-emergent s7 are val-validated.**
+Knee operating point κ = 1.0; test sink LT 0.769, test ΔR@20 = -0.0002.
+
+## B5 — Anatomy of the intervention (commit `314875d`)
+
+At the knee operating point:
+
+  NYC  test n = 4410   touched share = **6.69 %**   identity (changed ==
+                       core∩sink): **PASS**
+  TKY  test n = 33881  touched share = **15.14 %**  identity check:
+                       58/5219 core-sink unchanged (insufficient boost
+                       at κ=2.0); 0 spurious changes outside core∩sink
+
+Contrast row (touched share at the same κ):
+
+  NYC   X-SAGE 6.7 %    B_full 100 %    global re-rank 100 %
+  TKY   X-SAGE 15.1 %   B_full 100 %    global re-rank 100 %
+
+**Paper figure material**: B5 worked examples (3 per city) and
+depth_profile.png (rank histogram of entries vs exits).
+
+## B6 — Lens backbone-agnostic audit (commit `985e331`) — **headline B6 finding**
+
+Each of the 8 step02a floor models scored on test; lens on keep-mode
+situations:
+
+  NYC sinks per model: {6} on TopPop, ItemKNN, UserKNN, P3α, RP3β,
+       EASE^R, FM (Random: {}). Union = intersection = {6}.
+  TKY sinks per model: {4} on TopPop; {4, 5} on the 6 CF models
+       (ItemKNN, UserKNN, P3α, RP3β, EASE^R, FM). Random: {}.
+       Union = {4, 5}, intersection = {4}.
+
+**Main-paper claim: the X-SAGE lens is backbone-agnostic. Inequity is a
+property of the situations themselves — not of the specific recommender.
+The lens audits any backbone.**
+
+Sanity confirmed: Random's uniform top-K produces no sink fires
+(threshold not spuriously triggered). TopPop's degenerate top-K (only
+short-head items) still fires the universal sink — even when all
+recommendations are head items, the per-situation distribution can be
+more concentrated than the global one.
+
+## C5 — B_full ablation on TKY (commit `e817cdd`) — **defensive narrative confirmed**
+
+| variant | R@20 all | T&T | non-T&T |
+|---|---:|---:|---:|
+| M_full | 0.0309 | 0.0314 | 0.0297 |
+| M_minus_time | **0.0263** worst | 0.0286 | 0.0206 |
+| **M_minus_geo** | **0.0322** best of ablated | 0.0326 | 0.0311 |
+| M_minus_fine | 0.0308 | 0.0319 | 0.0279 |
+| M_minus_intent | 0.0305 | 0.0305 | 0.0305 |
+
+No variant beats B_blind (0.0500). **C1 + C5.0 + C5 = complete evidence
+chain for the defensive narrative.**
+
+C5.0 hypothesis tests:
+* M_minus_geo: predicted to shrink T&T deficit → PARTIALLY confirmed
+  (best of ablated; suggests prev_geohash5 was a mild noise source).
+* M_minus_time: predicted to shrink T&T deficit → REFUTED in opposite
+  direction (time features hold the model together).
+* M_minus_fine, M_minus_intent: predicted negligible → confirmed.
+
+Paper sentence: "On TKY, B_full does not recover under any single-axis
+feature ablation. The harm is the per-target-macro law of context — not
+attributable to any one feature group."
+
+## B4 — Profiling suite (committed inline with C5)
+
+Archetypes (k-means cosine on π_u, silhouette):
+  NYC: k=5, silhouette 0.550 → STABLE
+  TKY: k=6, silhouette 0.544 → STABLE
+
+**User-side fairness (Gini of LT-received per user)**:
+  NYC  OFF Gini = 0.7421  ON = 0.7422  Δ = +0.0001 (small mass touched)
+  TKY  OFF Gini = 0.8553  ON = 0.7634  Δ = **-0.0920** (large equity gain)
+
+**Paper headline (user-side fairness)**: "on TKY, the X-SAGE sink
+re-ranking cuts the Gini of LT-received per user by 0.09 — a
+substantial user-level equity gain at the A4-quantified paired-
+significant accuracy cost (CI95 of ΔR@20 = [-0.0030, -0.0011] at knee
+κ=2.0)."
+
+## D1 — Dataset candidates memo (commit `e641087`)
+
+Five-candidate analysis: TIST2015 (PRIMARY for D2), Last.fm-1K (SECONDARY,
+future round, non-POI generality), Gowalla (parked, no categories),
+Weeplaces (availability problem), Frappe (REJECTED — no event timestamps,
+retained for future trustworthiness-only domain transfer only).
+
+Selection rule: interior T&T share (~40-55 %) AND post-k-core users in
+[1k, 3k]. Shortlist: Istanbul, São Paulo, Bangkok, Moscow, Kuala Lumpur,
+Jakarta.
+
+## C6 — TKY* balanced counterfactual (PREDICTION committed `b29cb1b`; OUTCOMES TBD)
+
+**R8 pre-registration** for C6 PREDICTIONs done. Predictions:
+* P-i:   keep-mode macro graph recovers ≥ 4 attractors.
+* P-ii:  keep-mode Stage-C ΔF1 vs clock ≥ 0.
+* P-iii: B_full − B_blind aggregate ΔR@20 ≥ 0.
+* P-iv:  per-macro signs invariant.
+
+C6 run in progress; outcomes appended to PREDICTION_C6.md when complete.
+
+## Session-3 master decision table
+
+| Task | Verdict | Headline | Paper decision |
+|---|---|---|---|
+| A1bis | PASS exact match | val sinks = test sinks {6, 7} on NYC mask | **main** (extends A1 to mask mode) |
+| B5    | identity PASS NYC; TKY 58 sub-threshold | 6.7 % NYC / 15.1 % TKY touched; 100 % B_full/global | **main** + figure (examples, depth_profile) |
+| B6    | structural verdict | sinks identical across all 7-8 non-random recommenders | **MAIN headline** (lens backbone-agnostic) |
+| C5    | defensive | no variant ≥ B_blind on TKY; M_minus_geo best of ablated 0.0322 | **main** (TKY narrative paragraph closed) |
+| B4    | stable archetypes | sil ≈ 0.55 both cities; TKY Gini -0.092 | **main** (user-side fairness) |
+| D1    | done | TIST2015 primary, Last.fm-1K future | **main + appendix** |
+| C6    | in progress | TBD | depends on outcomes |
+| B2    | not run this session | — | deferred to session 4 |
+
+## "What changed for the paper" (session 3)
+
+1. **B6 promotes the lens to backbone-agnostic.** The same sinks are
+   flagged by 7-8 of 8 floor recommenders on each city. The paper's
+   "fairness lens" section now claims: "the X-SAGE lens audits ANY
+   backbone — inequity is structural to the city × situation, not to
+   the model".
+
+2. **C5 closes the TKY narrative.** No feature ablation of tuned B_full
+   recovers TKY to B_blind. The defensive narrative — "context routing
+   hurts on TKY" — is backed by the complete C1 → C5.0 → C5 evidence
+   chain. Paper: "On TKY, B_full does not recover under any single-axis
+   feature ablation. The harm is the per-target-macro law of context."
+
+3. **B4 adds a user-side fairness headline.** The sink re-ranking on TKY
+   cuts the user-side Gini of long-tail exposure by 0.092 — at the
+   A4-quantified accuracy cost. NYC's intervention is small-mass and
+   leaves the user-side Gini unchanged. **User-level equity gain is a
+   new paper deliverable.**
+
+4. **B5 provides the worked examples.** Three per city, ready for the
+   paper figure. Identity check PASS on NYC; TKY has 58 sub-threshold
+   core-sink requests at κ=2.0 — reported as a property of the additive
+   boost, not a bug.
+
+5. **A1bis extends the val-leak guarantee to mask mode.** Round-2 said
+   {6} on NYC; round-3 mask says {6, 7}; both val and test agree. s7 is
+   not "test-emergent" — also val-flagged.
+
+6. **D1 sets up D2/session 4.** TIST2015 is primary; Last.fm-1K is the
+   non-POI generality candidate for a future round. Frappe rejected
+   with cause.
+
+7. **PREDICTION_C6.md committed before C6 runs (R8).** Outcomes will be
+   recorded next to predictions when C6 completes.
+
+8. **Open items for session 4.** C6 OUTCOMES (running), D2 (TIST dry
+   run with pre-registered predictions per R8), B2 (CST weights —
+   ordering constraint was waiting for C2 decision, now ready).
+

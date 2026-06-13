@@ -108,7 +108,7 @@ def step2_preprocess(raw_path: Path, out_dir: Path,
         taxonomy_path=taxonomy_path, k_core=10,
         train_ratio=0.8, val_ratio=0.1, test_ratio=0.1, seed=42)
     print(result.short_report())
-    return {"n_users": result.n_users, "n_items": result.n_items,
+    return {"n_users": result.n_users_final, "n_items": result.n_items_final,
               "n_interactions_post_kcore": result.n_interactions_post_kcore,
               "n_interactions_final": result.n_interactions_final}
 
