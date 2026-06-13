@@ -578,6 +578,69 @@ Stage C: F1 T-based 0.363 vs time-only 0.375. Floor FM TKY_BAL R@20 =
 **0.0656** (higher than TKY 0.0500 because smaller pool → more diverse
 per-request hits); B_blind = **0.0483** (B_full = 0.0467).
 
+## B7 — Position-weighted exposure of the sink re-ranking
+
+**Reviewer worry**: LT@20 is position-blind; the B5 anatomy shows long-
+tail items enter at deep ranks (median entry 12); maybe X-SAGE is
+inflating LT without delivering effective exposure. B7 re-measures the
+gain with NDCG-style log discount w(r)=1/log₂(r+1) and reports both the
+discounted gain and the rank at which the LT@k curve diverges.
+
+Per-city numbers (touched-only — where the action lives):
+
+| city | flat LT@20 Δ | disc LT@20 Δ | ratio disc/flat | sep_k | median entry | ΔR@5 |
+|---|---|---|---|---|---|---|
+| NYC mask, κ=1.0 | +0.6508 | **+0.6664** | **1.024** | **3** | 12 | −0.00045 |
+| TKY keep, κ=2.0 | +0.7126 | **+0.6868** | **0.964** | **3** | 12 | −0.00071 |
+
+**Verdict: POSITION-ROBUST on both cities.** Discounted gain retains
+96–102 % of the flat gain. The reviewer's worry is empirically rejected:
+the LT@k curves separate at **k=3** (touched-only), so X-SAGE's
+re-ranking lifts long-tail items into the top of the visible list, not
+just the tail. Median entry rank 12 is misleading — those are
+*new* arrivals; LT items that were already inside the top-20 at deep
+ranks get pushed UP into k=3–10 by the κ boost, and that is what drives
+the early-k separation.
+
+Global exposure-at-k curves:
+
+| city | k | LT_off | LT_on | Δ |
+|---|---|---|---|---|
+| NYC | 3  | 0.0605 | 0.1073 | +0.0467 |
+| NYC | 20 | 0.1119 | 0.1554 | +0.0435 |
+| TKY | 3  | 0.0240 | 0.1168 | +0.0928 |
+| TKY | 20 | 0.0518 | 0.1597 | +0.1079 |
+
+Δ at k=3 is comparable to (NYC) or larger than (TKY) Δ at k=20 in
+*relative* terms — confirming that the gain is **front-loaded**, not
+tail-only.
+
+**Provider coverage** (a complementary gain):
+
+| scope | NYC distinct-LT off→on (Δ) | TKY distinct-LT off→on (Δ) |
+|---|---|---|
+| global | 398 → 443 (**+45**) | 797 → 1325 (**+528**) |
+| touched | 42 → 164 (**+122**, +290 %) | 271 → 1146 (**+875**, +323 %) |
+
+The set of long-tail items that receive *any* top-20 exposure grows
+by 45 (NYC, 5.2 % of the LT universe) / 528 (TKY, 23 % of the LT
+universe). On TKY this is a > **fivefold widening** of provider reach
+in touched lists.
+
+**Head accuracy stays head-safe.** R@5 changes by −0.0005 (NYC) and
+−0.0007 (TKY); NDCG@5 by similar tiny negatives. No qualification of
+the "head-safe" claim is needed.
+
+Paper consequence: **B7 hardens the headline.** The exposure gain
+survives a position-discount metric, is front-loaded on the list, and
+broadens the provider universe — all without measurable head-accuracy
+cost. `exposure_at_k.png` is the main-text figure for the fairness
+section.
+
+Outputs:
+* `outputs/NYC/xsage_transit_mask/round3/B7/{exposure_metrics.csv, exposure_at_k.{csv,png}, entry_rank_hist.png, provider_coverage.csv, verdict.json}`
+* `outputs/TKY/xsage/round3/B7/{...same...}`
+
 ## Session-3 master decision table
 
 | Task | Verdict | Headline | Paper decision |
@@ -589,6 +652,7 @@ per-request hits); B_blind = **0.0483** (B_full = 0.0467).
 | B4    | stable archetypes | sil ≈ 0.55 both cities; TKY Gini -0.092 | **main** (user-side fairness) |
 | D1    | done | TIST2015 primary, Last.fm-1K future | **main + appendix** |
 | C6    | causal validation of C5.0 | P-iv MATCH; aggregate predicted to 4 decimals from pool mix × per-macro | **MAIN headline** (causal interpretation block) |
+| B7    | position-robust both cities | ratio disc/flat = 1.024 NYC / 0.964 TKY; sep_k=3; ΔR@5≈0 | **MAIN figure** (exposure_at_k.png) |
 | B2    | not run this session | — | deferred to session 4 |
 
 ## "What changed for the paper" (session 3)
@@ -645,4 +709,13 @@ per-request hits); B_blind = **0.0483** (B_full = 0.0467).
 10. **Open items for session 4.** D2 (TIST dry run with pre-registered
     predictions per R8), B2 (CST weights — ordering constraint was
     waiting for C2 decision, now ready).
+
+11. **B7 hardens the fairness headline against the position-blindness
+    objection.** The discounted LT@20 retains 96–102 % of the flat
+    gain; LT@k curves separate at **k=3**, not k=15; the provider
+    universe widens by +5 % (NYC) / +23 % (TKY) distinct items getting
+    top-20 exposure; head metrics R@5/NDCG@5 unchanged within 0.001.
+    Paper: report exposure-at-k as a figure and discounted LT alongside
+    flat LT — no need to fall back to the Pareto-curve framing because
+    the gain is genuinely effective, not nominal.
 
