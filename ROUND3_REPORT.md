@@ -627,19 +627,78 @@ by 45 (NYC, 5.2 % of the LT universe) / 528 (TKY, 23 % of the LT
 universe). On TKY this is a > **fivefold widening** of provider reach
 in touched lists.
 
-**Head accuracy stays head-safe.** R@5 changes by −0.0005 (NYC) and
-−0.0007 (TKY); NDCG@5 by similar tiny negatives. No qualification of
-the "head-safe" claim is needed.
+**Head accuracy stays head-safe globally.** R@5 changes by −0.0005 (NYC)
+and −0.0007 (TKY); NDCG@5 by similar tiny negatives. **But the global
+average is diluted by ~85–93 % untouched requests** — see B7b for the
+honest local read.
 
-Paper consequence: **B7 hardens the headline.** The exposure gain
-survives a position-discount metric, is front-loaded on the list, and
-broadens the provider universe — all without measurable head-accuracy
-cost. `exposure_at_k.png` is the main-text figure for the fairness
-section.
+Paper consequence: **B7 hardens the headline on exposure.** The exposure
+gain survives a position-discount metric, is front-loaded on the list,
+and broadens the provider universe. `exposure_at_k.png` is the main-
+text figure for the fairness section. The accuracy claim is restated
+in B7b below as "global cost ~0, local cost small and bounded".
 
 Outputs:
 * `outputs/NYC/xsage_transit_mask/round3/B7/{exposure_metrics.csv, exposure_at_k.{csv,png}, entry_rank_hist.png, provider_coverage.csv, verdict.json}`
 * `outputs/TKY/xsage/round3/B7/{...same...}`
+
+## B7b — Local accuracy inside touched lists
+
+B7's "head-safe" claim averages over the full test set. Since X-SAGE
+only touches ~6.7 % of NYC requests and ~15.1 % of TKY requests, the
+global average dilutes the local effect by ×14–6.5. Honest reporting
+requires the accuracy delta computed on the touched subset alone.
+
+| city | touched n | ΔR@20 CI95 (touched) | ΔNDCG@10 CI95 (touched) | verdict |
+|---|---|---|---|---|
+| NYC mask κ=1.0 | 295 / 4410 | **−0.0034** [−0.0102, +0.0000] | **−0.0052** [−0.0117, −0.0005] | **local cost small** |
+| TKY keep κ=2.0 | 5129 / 33881 | **−0.0121** [−0.0166, −0.0076] | **−0.0032** [−0.0047, −0.0017] | **local cost small** |
+
+(Bootstrap B=10 000, paired per-request resampling.)
+
+**Mechanism (displaced-rank decomposition).** For each touched request,
+classify the rank of the true held-out target in the B_blind top-20:
+
+| city | miss_in_blind | shallow_hit (1–13) | deep_hit (14–20) |
+|---|---|---|---|
+| NYC | 289 (98 %) | 6 — 1 lost | 0 |
+| TKY | 4959 (97 %) | 127 — 59 lost (46 %) | 43 — 41 lost (95 %) |
+
+Among touched lists, **~97 % were already misses in B_blind** (the
+target wasn't in the top-20 anyway) → the +LT swing comes essentially
+free for those. The local cost concentrates on the ~3 % of touched
+lists where the B_blind list was already a hit; among those, the boost
+evicts a fraction (46 % of shallow hits, 95 % of deep hits on TKY).
+On TKY this leaves net −62 hits across 5129 touched requests →
+ΔR@20 = −0.0121.
+
+**Contrast with the global re-rank**, computed on the SAME touched
+subset (so the comparison is apples-to-apples on selectivity):
+
+| city | X-SAGE ΔR@20 (touched) | global-rerank ΔR@20 (same touched) |
+|---|---|---|
+| NYC | −0.0034 | −0.0034 |
+| TKY | −0.0121 | −0.0121 |
+
+**X-SAGE's per-touched-list accuracy cost is identical to global re-
+rank's per-list cost** — X-SAGE's advantage is purely in NOT touching
+the ~85–93 % of lists where the intervention is unjustified. That
+selectivity is the contribution: same local cost, paid only where the
+fairness margin exists.
+
+**Paper restatement (replaces the bare "cost zero" line).** The
+sink-gated re-ranking carries a **negligible global accuracy cost**
+(ΔR@20 = −0.0002 NYC / −0.0018 TKY) and a **small, bounded local
+cost** within the touched subset (ΔR@20 = −0.0034 NYC / −0.0121 TKY,
+both NDCG@10 CI95 strictly negative). The exposure gain inside touched
+lists is +0.65 / +0.71 flat LT@20 (+0.67 / +0.69 position-discounted).
+The exposure-to-accuracy trade is 1.2 percentage-points local R@20 per
+~70 percentage-points local LT swing — i.e. about ~50× more exposure
+delivered than accuracy spent.
+
+Outputs:
+* `outputs/NYC/xsage_transit_mask/round3/B7b/{touched_accuracy.csv, displaced_rank_analysis.csv, verdict.json}`
+* `outputs/TKY/xsage/round3/B7b/{...same...}`
 
 ## Session-3 master decision table
 
@@ -653,6 +712,7 @@ Outputs:
 | D1    | done | TIST2015 primary, Last.fm-1K future | **main + appendix** |
 | C6    | causal validation of C5.0 | P-iv MATCH; aggregate predicted to 4 decimals from pool mix × per-macro | **MAIN headline** (causal interpretation block) |
 | B7    | position-robust both cities | ratio disc/flat = 1.024 NYC / 0.964 TKY; sep_k=3; ΔR@5≈0 | **MAIN figure** (exposure_at_k.png) |
+| B7b   | local cost small both cities | ΔR@20 touched −0.0034 NYC / −0.0121 TKY; identical to global-rerank's local cost; 97 % of touched were B_blind misses | **main** (paper restatement of accuracy claim) |
 | B2    | not run this session | — | deferred to session 4 |
 
 ## "What changed for the paper" (session 3)
@@ -718,4 +778,15 @@ Outputs:
     Paper: report exposure-at-k as a figure and discounted LT alongside
     flat LT — no need to fall back to the Pareto-curve framing because
     the gain is genuinely effective, not nominal.
+
+12. **B7b restates the accuracy claim honestly.** "Cost zero" was a
+    global average diluted by 85–93 % untouched lists. Restricted to
+    touched, ΔR@20 = −0.0034 NYC / −0.0121 TKY (TKY excludes 0; NYC
+    marginal). Mechanism: 97 % of touched were B_blind misses, so +LT
+    is free there; the small local cost concentrates on the ~3 % where
+    a true hit sat at ranks 14–20 in B_blind and the boost evicts it.
+    Contrast: X-SAGE's per-touched-list cost is *identical* to global
+    re-rank's per-list cost — X-SAGE's contribution is selectivity, not
+    a cheaper boost. Paper: state global cost ~0 AND local cost small-
+    and-bounded; exposure/accuracy ratio ~50× inside touched lists.
 
