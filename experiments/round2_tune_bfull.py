@@ -25,7 +25,9 @@ from pipeline.step02_models.xsage.orchestrator import _load_city
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__,
                                        formatter_class=argparse.RawDescriptionHelpFormatter)
-    parser.add_argument("--city", choices=["NYC", "TKY", "both"], default="NYC")
+    parser.add_argument("--city", default="NYC",
+                        help="Built-in: NYC, TKY, both. Arbitrary strings ok "
+                             "if data/processed/<city>/ exists (e.g. TKY_BAL).")
     parser.add_argument("--max-epochs", type=int, default=20)
     parser.add_argument("--patience", type=int, default=3)
     parser.add_argument("--seed", type=int, default=42)

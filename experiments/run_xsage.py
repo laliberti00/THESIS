@@ -28,7 +28,11 @@ sys.path.insert(0, str(REPO_ROOT))
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__,
                                        formatter_class=argparse.RawDescriptionHelpFormatter)
-    parser.add_argument("--city", choices=["NYC", "TKY", "both"], default="NYC")
+    parser.add_argument("--city", default="NYC",
+                        help="Built-in cities: NYC, TKY, both. "
+                             "Other strings are accepted as long as "
+                             "data/processed/<city>/ exists (e.g. TKY_BAL "
+                             "for the round-3 C6 counterfactual).")
     parser.add_argument("--stage", choices=["A", "B", "C", "D", "E", "all"],
                         default="A")
     parser.add_argument("--K", type=int, default=6)

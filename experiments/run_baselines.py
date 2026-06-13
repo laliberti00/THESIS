@@ -144,7 +144,9 @@ def run_baselines(URM_train,
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__,
                                       formatter_class=argparse.RawDescriptionHelpFormatter)
-    parser.add_argument("--city", choices=["NYC", "TKY", "both"], default="both")
+    parser.add_argument("--city", default="both",
+                        help="Built-in: NYC, TKY, both. Arbitrary strings ok "
+                             "if data/processed/<city>/ exists (e.g. TKY_BAL).")
     parser.add_argument("--models", default=None,
                         help="Comma-separated subset of models. Default: all 8.")
     parser.add_argument("--skip-tuning", action="store_true",
