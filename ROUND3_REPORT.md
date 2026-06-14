@@ -811,6 +811,75 @@ These are the paper's **explainability figure**.
 * `outputs/round3/B8/<city>/{situation_cards.{csv,md}, named_situations.csv, naming_rule_trace.md, name_stability.json, worked_examples_named.md}`
 * `outputs/round3/B8/{faithfulness.json, summary.json}`
 
+## B8b — Robust intent token (dominance-gap rule) + stability re-test
+
+B8's intent token was a hard argmax over the centroid's reachable-macro
+scores — brittle when the top two attractors are near-tied (a tiny
+rough-k-means perturbation flips the argmax, so the label changes even
+though the cluster, ARI 0.82 / 0.66, does not). Cause was diagnosed and
+fixed.
+
+**B8b.1 — robust rule.** Replace argmax with a dominance-gap rule on
+the centroid's attractor-restricted reachability scores; τ_dom = **0.10**.
+
+  if p1 − p2 ≥ τ_dom        →  clear_dominance: token = m1
+  elif p2 − p3 ≥ τ_dom       →  co_dominance: token = sorted({m1, m2})
+                                   joined "/"  (alphabetical → order-stable)
+  else                       →  diffuse: token = "Mixed"
+
+The pair is alphabetically sorted: "Food/Shop" == "Shop/Food", so a
+swap of p1↔p2 yields the same string by construction. τ_dom is the
+single declared threshold, stated in `naming_rule_trace.md`.
+
+**B8b.2 — stability re-test (Hungarian-matched, seeds {43, 44, 45}).**
+Intent stability is measured on the BASE intent token from the rule
+trace (the token before distinctness fallbacks like `(+X)`, `@HHh`,
+`#k`), so the comparison isolates the rule's robustness from the
+fallback layer's seed-dependent cosmetic differences.
+
+| city | rule | strict | **intent (base)** | time-band |
+|---|---|---|---|---|
+| NYC | B8 (argmax) | 0.38 | 0.38 | 0.94 |
+| NYC | **B8b (gap rule)** | 0.38 | **0.92** | 0.88 |
+| TKY | B8 (argmax) | 0.00 | 0.25 | 0.67 |
+| TKY | **B8b (gap rule)** | 0.06 | **1.00** | 0.67 |
+
+(Averages over 3 alt seeds; strict / intent / time-band measured
+separately. Intent target ≥ 0.70 NYC — achieved at **0.92**.)
+
+**B8b.3 — TKY framing (no hiding).** TKY intent-token stability is
+**1.00** under B8b precisely *because every cluster resolves to
+"Transit" in clear_dominance* (p1 − p2 ≥ 0.57 for every situation —
+range 0.57–0.78). The deterministic naming yields **low-distinctness
+names** on TKY (Weekday Afternoon · Transit, Weekend Afternoon ·
+Transit, Morning · Transit (+Shop) #2, Morning · Transit (+Shop) #3,
+Afternoon · Transit, Weekday Evening · Transit) — the `#k` fallback
+appears as a **"structural near-duplicate" marker**, not a naming
+success. This corroborates TKY's documented structural poverty
+(T&T 73 %, collapsed attractors, weak per-situation KL, triangular
+archetypes). **Same rule** → rich distinct names where structure
+exists (NYC), repetitive names where it does not (TKY). The naming
+becomes an indirect, deterministic measure of situational richness.
+
+NYC robust names: s0 *Morning · Outdoors (+Food) #0*, s1 *Evening ·
+Mixed*, s2 *Afternoon · Outdoors*, s3 *Afternoon · Mixed (+Shop)*,
+s4 *Morning · Mixed (+Shop)*, s5 *Afternoon · Mixed (+Outdoors)*,
+**s6 *Morning · Outdoors (+Food) #6* ★sink**, **s7 *Morning · Mixed
+(+Outdoors)* ★sink**. 3 clear_dominance + 5 diffuse → the "Mixed"
+label is an honest descriptive output: those situations have no
+single attractor that dominates, only spread mass.
+
+**Faithfulness is unaffected.** Naming is a label on top of the
+score decomposition; the 100 % faithfulness verified in B8.3 is a
+property of the algebraic identity `score_on − score_blind = κ·G1`,
+which does not depend on the naming rule. B8b leaves the score
+computation, the touched set, and the faithfulness numbers unchanged.
+
+### Outputs (B8b)
+
+* `outputs/round3/B8b/<city>/{named_situations_robust.csv, naming_rule_trace.md, name_stability_robust.json, worked_examples_named.md}`
+* `outputs/round3/B8b/summary.json`
+
 ## Session-3 master decision table
 
 | Task | Verdict | Headline | Paper decision |
@@ -825,6 +894,7 @@ These are the paper's **explainability figure**.
 | B7    | position-robust both cities | ratio disc/flat = 1.024 NYC / 0.964 TKY; sep_k=3; ΔR@5≈0 | **MAIN figure** (exposure_at_k.png) |
 | B7b   | local cost small both cities | ΔR@20 touched −0.0034 NYC / −0.0121 TKY; identical to global-rerank's local cost; 97 % of touched were B_blind misses | **main** (paper restatement of accuracy claim) |
 | B8    | faithfulness 100 %; deterministic names; time-band stable | 0 violations on 4 410+33 881 requests; 76 934 LT entries with exact κ-lift; time-band 88–100 % cross-seed | **MAIN headline** (intrinsic-faithful explainer; worked_examples_named.md figure) |
+| B8b   | robust intent token (gap rule, τ_dom=0.10) | intent stability NYC 38 %→**92 %**, TKY 25 %→**100 %**; TKY's perfect stability *is* the structural-poverty evidence (all clusters → Transit) | **main** (replaces B8 naming layer; faithfulness unchanged) |
 | B2    | not run this session | — | deferred to session 4 |
 
 ## "What changed for the paper" (session 3)
@@ -912,4 +982,15 @@ These are the paper's **explainability figure**.
     seeds. Position paper as "model-agnostic + intrinsically faithful
     (situational component)" — the exact-by-construction property the
     LIME/SHAP/CEF post-hoc family approximates.
+
+14. **B8b makes the intent token robust by construction.** Replacing
+    argmax with a dominance-gap rule (τ_dom = 0.10, alphabetically-sorted
+    co-dominance pair) lifts intent-token stability across seeds from
+    38 % → **92 %** on NYC and 25 % → **100 %** on TKY. The TKY perfect
+    stability is itself the evidence of structural poverty: every
+    cluster resolves to "Transit" with p1−p2 ≥ 0.57, so the rule
+    repeatedly emits the same intent label — the `#k` distinctness
+    fallback then surfaces as a "structural near-duplicate" marker.
+    Faithfulness (B8.3) is unchanged: naming is a label on top of an
+    unchanged score decomposition.
 
