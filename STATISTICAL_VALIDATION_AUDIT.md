@@ -51,7 +51,14 @@ These are claims in `ROUND3_REPORT.md` that would benefit from
 *explicit* significance numbers. Each is a < 30-line code add; nothing
 requires retraining.
 
-### 2.1 (HIGH priority) C5 ablation — paired tests on per-request deltas
+> **Status update (2026-06-14).** Items 2.1 (C5 ablation) and 2.2 (C6
+> per-macro + propagated CI) — both **HIGH** — are **CLOSED** by B9
+> (`experiments/round3_b9_stat_hardening.py`,
+> `outputs/round3/B9/{c50_paired_holm.json, c6_pivot_paired.json,
+> c5_paired_holm.json, summary.md}`). See `ROUND3_REPORT.md` § B9 for
+> the Holm-controlled tables. Remaining gaps: 2.3–2.7 (MED/LOW).
+
+### 2.1 (HIGH priority) [**CLOSED — B9.2**] C5 ablation — paired tests on per-request deltas
 
 `experiments/round3_c5_bfull_ablation.py` reports point-estimate R@20
 for each ablated variant on TKY (M_full = 0.0309, M_minus_geo = 0.0322,
@@ -70,7 +77,7 @@ outcome:** all 5 differences are negative and Wilcoxon-significant,
 strengthening "no recovery under any feature ablation" from a point-
 estimate claim to a Holm-controlled rejection.
 
-### 2.2 (HIGH priority) C6 per-target-macro deltas — paired tests
+### 2.2 (HIGH priority) [**CLOSED — B9.1**] C6 per-target-macro deltas — paired tests
 
 C6's P-iv MATCH ("T&T sign negative AND non-T&T sign positive on
 TKY_BAL") is reported as a point estimate (T&T −0.0106, non-TT +0.0064)

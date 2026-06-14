@@ -323,6 +323,15 @@ def train_and_score(city: str, variant_name: str, active_groups: tuple,
 
     cat_target = df_test["cat_macro"].values.astype(str)
     tt_mask = cat_target == "Travel & Transport"
+
+    # Save per-request arrays (for B9 stat hardening: paired Wilcoxon).
+    perreq_dir = REPO_ROOT / "outputs" / "round3" / "C5" / "per_request"
+    perreq_dir.mkdir(parents=True, exist_ok=True)
+    np.savez_compressed(perreq_dir / f"{city}_{variant_name}.npz",
+                          R20_per_request=r20_per_req.astype(np.float32),
+                          N20_per_request=n20_per_req.astype(np.float32),
+                          tt_mask=tt_mask)
+
     result = {
         "city": city, "variant": variant_name,
         "active_groups": list(active_groups),
