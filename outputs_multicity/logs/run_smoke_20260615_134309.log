@@ -1,0 +1,30 @@
+13:43:09 INFO  log file: /Users/lucaaliberti/Downloads/IntentAwareRS_thesis/outputs_multicity/logs/run_smoke_20260615_134309.log
+13:43:09 INFO  [smoke] sub-sampling first 1500 users from nyc_tist.tsv
+13:43:09 INFO  [smoke] wrote /Users/lucaaliberti/Downloads/IntentAwareRS_thesis/data/raw_tist/_smoke.tsv (27548 KB, 196,440 rows, 1500 users)
+13:43:09 INFO  ================================================
+13:43:09 INFO  Run plan: 1 city / 5 stages
+13:43:09 INFO  Cities: ['_smoke']
+13:43:09 INFO  Stages: ['step01', 'backbones', 'stageA', 'stageB', 'stageC']
+13:43:09 INFO  Rough ETA (whole run): ~28m05s  (per-city rough breakdown follows)
+13:43:09 INFO    [_smoke]  ~28m05s  (expected_users=1500)
+13:43:09 INFO  --force: False  --smoke: True  seed: 42
+13:43:09 INFO  ================================================
+13:43:09 INFO  [_smoke] step01 starting (kcore=3) ...
+13:43:11 INFO  [_smoke] step01 DONE in 1.7s: users=1,444, items=7,538, int=100,429
+13:43:11 INFO  [_smoke] backbones: floor FM ...
+13:43:11 INFO  $ /Users/lucaaliberti/Downloads/IntentAwareRS_thesis/.venv/bin/python -m experiments.run_baselines --city _smoke --models FM -v
+13:47:46 INFO  [_smoke] backbones: B_full tuning ...
+13:47:46 INFO  $ /Users/lucaaliberti/Downloads/IntentAwareRS_thesis/.venv/bin/python -m experiments.round2_tune_bfull --city _smoke --max-epochs 12 -v
+14:00:26 INFO  [_smoke] backbones DONE in 1035.2s
+14:00:26 INFO  $ /Users/lucaaliberti/Downloads/IntentAwareRS_thesis/.venv/bin/python -m experiments.run_xsage --city _smoke --stage A -v
+14:00:57 INFO  [_smoke] stageA DONE in 31.2s
+14:00:57 INFO  $ /Users/lucaaliberti/Downloads/IntentAwareRS_thesis/.venv/bin/python -m experiments.run_xsage --city _smoke --stage B -v
+14:01:05 INFO  [_smoke] stageB DONE in 7.6s
+14:01:05 INFO  $ /Users/lucaaliberti/Downloads/IntentAwareRS_thesis/.venv/bin/python -m experiments.run_xsage --city _smoke --stage C -v
+14:01:08 INFO  [_smoke] stageC DONE in 2.5s
+14:01:08 INFO  
+=== FINAL STATUS ===
+14:01:08 INFO  city          step01     backbones  stageA     stageB     stageC    
+14:01:08 INFO  _smoke        ok         ok         ok         ok         ok        
+14:01:08 INFO  
+OK: 5  Skipped: 0  Failed: 0

@@ -117,9 +117,151 @@ well above the power floor. With the 10-month compromise clip
   screening script + CSV + MD reports are tracked.
 * `outputs/NYC`, `outputs/TKY`, `pipeline/`, `engine/` — **untouched**.
 
-## Files
+## Files (PART 1)
 
 * `experiments/multicity/round4_city_screening.py`
 * `outputs_multicity/screening/city_screening.csv`
 * `outputs_multicity/screening/CITY_SCREENING.md`
+
+---
+
+# PART 2 — pipeline built, ready to run (this commit)
+
+PART 2 deliverable per the brief: **infrastructure built and validated by
+a smoke test, NOT a full run** — Luca launches the real multi-hour run
+from the VS Code terminal himself.
+
+## Step 1 — city sizes confirmed (post-k-core actuals)
+
+`experiments/multicity/multicity_size_check.py` carved each of the 5
+candidate cities and ran the frozen `preprocess_tsmc2014` on each
+(k-core=10, 80/10/10 temporal split, Apr 2012 – Feb 2013 compromise
+window):
+
+| city_key | TIST name | TT_share band | post-kcore users | items | interactions | flag |
+|---|---|---|---:|---:|---:|---|
+| `istanbul`   | Istanbul   | very-low (~0.06) | **22 631** | 9 305 | 1 258 889 | OK |
+| `bangkok`    | Bangkok    | low (~0.10)      | **6 316**  | 5 185 | 407 128   | OK |
+| `nyc_tist`   | New York · TSMC NYC bridge | low-mid (~0.14) | **4 113**  | 3 987 | 157 408   | OK |
+| `saopaulo`   | Sao Paulo  | low-mid (~0.15)  | **4 395**  | 3 207 | 218 162   | OK |
+| `tokyo_tist` | Tokyo · TSMC TKY bridge    | mid-high (~0.45) | **7 160**  | 5 723 | 563 089   | OK |
+
+All 5 cities exceed the ~2 000-user power floor. No substitutions needed.
+
+## Step 2 — pre-registered cross-city predictions (R8)
+
+`outputs_multicity/PREDICTIONS_MULTICITY.md` is committed BEFORE any
+Stage run. 9 falsifiable predictions P1–P9 with HIGH/MED confidence
+tags:
+
+* P1: ≥4 attractors on Istanbul / Bangkok / SP / NYC-TIST (HIGH each).
+* P2: Stage-C ΔF1 ≥ +0.05 on the four low-TT cities (HIGH).
+* P3: Tokyo-TIST Stage-C ΔF1 ∈ [−0.05, +0.05] (MED).
+* P4: per-target-macro signs preserved on every city — T&T negative,
+  non-T&T positive (HIGH, the structural backbone of round-3 C5.0/C6).
+* P5: aggregate B_full−B_blind > 0 on the four low-TT cities (HIGH).
+* P6: Tokyo-TIST aggregate B_full−B_blind near zero ([−0.01, +0.01]) (MED).
+* P7: every city: ≥ 1 inequity sink at Stage B (HIGH).
+* P8 / P9: provenance robustness — NYC-TIST behaviour predicted by
+  ITS OWN TIST TT_share 0.14 (HIGH); Tokyo-TIST by its OWN 0.45 (MED).
+  This is a natural causal test complementary to C6's synthetic one.
+
+## Step 3 — orchestrator built
+
+`experiments/multicity/run_multicity.py` (single command Luca runs).
+
+Features:
+* tqdm everywhere (outer city bar, inner stages bar);
+* python `logging` to stdout AND
+  `outputs_multicity/logs/run_<timestamp>.log`;
+* checkpointing per (city, stage) with `.done_<stage>` markers under
+  `outputs_multicity/<city>/`; re-run skips done unless `--force`;
+* graceful failure: a failing (city, stage) writes `.fail_<stage>`
+  and the loop CONTINUES to the next city;
+* `--smoke`: 1 500-user dry run on `nyc_tist`, k-core=3, full chain in
+  ~18 min (validated);
+* upfront per-city ETA estimates printed at run start.
+
+Stages: `carve, step01, backbones, stageA, stageB, stageC, stageD, all`.
+All Stage modules are imported / called via subprocess of the frozen
+round-3 CLIs (`experiments.run_baselines`, `experiments.round2_tune_bfull`,
+`experiments.run_xsage`) — **no frozen code is forked**. The thin
+multicity adapter is `experiments/multicity/tist_carve.py` (TIST→TSMC
+format conversion + per-city haversine carving + 10-month window clip).
+
+## Step 4 — smoke test PASSED
+
+Smoke command actually executed during PART 2:
+
+```bash
+.venv/bin/python -m experiments.multicity.run_multicity --smoke
+```
+
+Result on `outputs_multicity/_smoke/`:
+
+| stage | status | headline |
+|---|---|---|
+| step01    | OK | 1 444 users, 7 538 items, 100 429 interactions (kcore=3) |
+| backbones | OK | floor FM ~4 min + B_full tuning ~13 min = ~17 min |
+| Stage A   | OK | K=6, ε=0.01, ARI **0.998** cross-seed, 5 attractors |
+| Stage B   | OK | **GREEN**, 1 sink at situation 1, KL ratio 1.9× global |
+| Stage C   | OK | ΔF1 = **+0.206** (T-based), McNemar p = 0 |
+
+Wallclock: ~18 min end-to-end on a 1 500-user subset of NYC-TIST.
+**Plumbing validated**: every stage produced its expected artefacts,
+checkpoint markers were written, tqdm/logging behaved.
+
+The smoke result is consistent with PART-2 predictions for low-TT
+cities (rich attractor structure, positive ΔF1, GREEN lens).
+
+## The command Luca should run
+
+From the VS Code integrated terminal:
+
+```bash
+cd /Users/lucaaliberti/Downloads/IntentAwareRS_thesis
+
+# Smoke (re-validate plumbing locally, ~18 min):
+.venv/bin/python -m experiments.multicity.run_multicity --smoke
+
+# Real multi-city full run (5 cities × all stages, ~4–6 h on the M2):
+.venv/bin/python -m experiments.multicity.run_multicity \
+    --cities all --stages all
+
+# Recommended FIRST pass — only structural stages (no backbones training),
+# completes in ~30 min, lets you sanity-check the law before committing:
+.venv/bin/python -m experiments.multicity.run_multicity \
+    --cities all --stages step01,stageA,stageB,stageC
+```
+
+Logs land in `outputs_multicity/logs/run_<timestamp>.log` (also tee'd
+to stdout). To resume after sleep/crash: re-run the same command — the
+orchestrator skips completed (city, stage) pairs automatically. To
+inspect a specific failure: look for `.fail_<stage>` under
+`outputs_multicity/<city>/`. Full runbook: `experiments/multicity/README.md`.
+
+## State (this commit)
+
+* `round4-multicity` branch advanced to PART-2 code; round3-complete
+  tag unchanged.
+* New files: `experiments/multicity/tist_carve.py`,
+  `multicity_size_check.py`, `run_multicity.py`, `README.md`.
+* Tracked artefacts (force-added past gitignore):
+  `outputs_multicity/PREDICTIONS_MULTICITY.md`,
+  `outputs_multicity/selection/final_cities.md`,
+  `outputs_multicity/selection/size_check_results.json`,
+  the smoke log under `outputs_multicity/logs/`.
+* `outputs/NYC`, `outputs/TKY`, `outputs/TKY_BAL`, `pipeline/`,
+  `engine/` — **untouched**; 19/19 tests green.
+* Heavy per-city artefacts written by frozen modules during the smoke
+  live under `outputs/_smoke/` and `data/processed/_smoke/` (both
+  gitignored). Real-run per-city artefacts will go to
+  `outputs/<city>/` / `data/processed/<city>/` (same convention as
+  TSMC NYC/TKY/TKY_BAL).
+
+## Step 5 (PART 3, deferred)
+
+The synthetic ~70% high-T&T anchor (reverse-C6 upsampling) waits until
+PART-2's real-city results confirm the law's behaviour. Planned but
+not built.
 * `MULTICITY_REPORT.md` (this file)

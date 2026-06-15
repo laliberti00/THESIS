@@ -1,0 +1,103 @@
+{
+  "window_start": "2012-04",
+  "window_end": "2013-02",
+  "k_core": 10,
+  "candidates": {
+    "istanbul": {
+      "tist": "Istanbul",
+      "tt_band": "very-low (~0.06)"
+    },
+    "bangkok": {
+      "tist": "Bangkok",
+      "tt_band": "low (~0.10)"
+    },
+    "nyc_tist": {
+      "tist": "New York",
+      "tt_band": "low-mid (~0.14)",
+      "round3_bridge": "TSMC NYC (TT~0.25)"
+    },
+    "saopaulo": {
+      "tist": "Sao Paulo",
+      "tt_band": "low-mid (~0.15)"
+    },
+    "tokyo_tist": {
+      "tist": "Tokyo",
+      "tt_band": "mid-high (~0.45)",
+      "round3_bridge": "TSMC TKY (TT~0.71)"
+    }
+  },
+  "carve": {
+    "istanbul": {
+      "n_venues_in_radius": 146415,
+      "n_checkins_written": 1787843,
+      "n_users_distinct": 34295,
+      "wallclock_s": 32.71961283683777
+    },
+    "bangkok": {
+      "n_venues_in_radius": 109968,
+      "n_checkins_written": 774319,
+      "n_users_distinct": 9863,
+      "wallclock_s": 32.71966004371643
+    },
+    "nyc_tist": {
+      "n_venues_in_radius": 69822,
+      "n_checkins_written": 446626,
+      "n_users_distinct": 13795,
+      "wallclock_s": 32.71966099739075
+    },
+    "saopaulo": {
+      "n_venues_in_radius": 78906,
+      "n_checkins_written": 602054,
+      "n_users_distinct": 10085,
+      "wallclock_s": 32.71966195106506
+    },
+    "tokyo_tist": {
+      "n_venues_in_radius": 106237,
+      "n_checkins_written": 918120,
+      "n_users_distinct": 11215,
+      "wallclock_s": 32.719669818878174
+    }
+  },
+  "sizes_post_kcore": {
+    "istanbul": {
+      "n_users_final": 22631,
+      "n_items_final": 9305,
+      "n_interactions_final": 1258889,
+      "n_interactions_post_kcore": 1258901,
+      "wallclock_s": 21.43141794204712,
+      "from_cache": false
+    },
+    "bangkok": {
+      "n_users_final": 6316,
+      "n_items_final": 5185,
+      "n_interactions_final": 407128,
+      "n_interactions_post_kcore": 407155,
+      "wallclock_s": 7.377472162246704,
+      "from_cache": false
+    },
+    "nyc_tist": {
+      "n_users_final": 4113,
+      "n_items_final": 3987,
+      "n_interactions_final": 157408,
+      "n_interactions_post_kcore": 157421,
+      "wallclock_s": 3.836660146713257,
+      "from_cache": false
+    },
+    "saopaulo": {
+      "n_users_final": 4395,
+      "n_items_final": 3207,
+      "n_interactions_final": 218162,
+      "n_interactions_post_kcore": 218173,
+      "wallclock_s": 5.0908050537109375,
+      "from_cache": false
+    },
+    "tokyo_tist": {
+      "n_users_final": 7160,
+      "n_items_final": 5723,
+      "n_interactions_final": 563089,
+      "n_interactions_post_kcore": 563100,
+      "wallclock_s": 8.908760070800781,
+      "from_cache": false
+    }
+  }
+}
