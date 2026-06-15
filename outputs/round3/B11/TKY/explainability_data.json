@@ -1,0 +1,576 @@
+[
+  {
+    "id": 0,
+    "available": true,
+    "request": {
+      "u_idx": 223,
+      "time_local": "2013-02-14 18:03:38",
+      "target_macro": "Travel & Transport",
+      "target_fine": "Subway",
+      "is_core_sink": false
+    },
+    "top5": [
+      {
+        "rank": 1,
+        "off_item": 114,
+        "off_macro": "Travel & Transport",
+        "off_pop_pct": 1.0,
+        "on_item": 114,
+        "on_macro": "Travel & Transport",
+        "on_pop_pct": 1.0,
+        "changed": false
+      },
+      {
+        "rank": 2,
+        "off_item": 228,
+        "off_macro": "Travel & Transport",
+        "off_pop_pct": 0.996,
+        "on_item": 228,
+        "on_macro": "Travel & Transport",
+        "on_pop_pct": 0.996,
+        "changed": false
+      },
+      {
+        "rank": 3,
+        "off_item": 486,
+        "off_macro": "Shop & Service",
+        "off_pop_pct": 0.998,
+        "on_item": 486,
+        "on_macro": "Shop & Service",
+        "on_pop_pct": 0.998,
+        "changed": false
+      },
+      {
+        "rank": 4,
+        "off_item": 147,
+        "off_macro": "Travel & Transport",
+        "off_pop_pct": 0.962,
+        "on_item": 147,
+        "on_macro": "Travel & Transport",
+        "on_pop_pct": 0.962,
+        "changed": false
+      },
+      {
+        "rank": 5,
+        "off_item": 1230,
+        "off_macro": "Travel & Transport",
+        "off_pop_pct": 0.955,
+        "on_item": 1230,
+        "on_macro": "Travel & Transport",
+        "on_pop_pct": 0.955,
+        "changed": false
+      }
+    ],
+    "entries_lt_in_top20": [],
+    "n_swaps_top20": 0,
+    "explainee": {
+      "item": 114,
+      "rank_on": 1,
+      "macro": "Travel & Transport",
+      "score_base": 3.843,
+      "score_nudge": 0.0,
+      "score_total": 3.843,
+      "explanation_kind": "untouched_zero_nudge"
+    }
+  },
+  {
+    "id": 1,
+    "available": true,
+    "request": {
+      "u_idx": 1696,
+      "time_local": "2012-12-29 17:42:45",
+      "target_macro": "Shop & Service",
+      "target_fine": "Electronics Store",
+      "is_core_sink": false
+    },
+    "top5": [
+      {
+        "rank": 1,
+        "off_item": 151,
+        "off_macro": "Travel & Transport",
+        "off_pop_pct": 0.999,
+        "on_item": 151,
+        "on_macro": "Travel & Transport",
+        "on_pop_pct": 0.999,
+        "changed": false
+      },
+      {
+        "rank": 2,
+        "off_item": 433,
+        "off_macro": "Arts & Entertainment",
+        "off_pop_pct": 0.975,
+        "on_item": 433,
+        "on_macro": "Arts & Entertainment",
+        "on_pop_pct": 0.975,
+        "changed": false
+      },
+      {
+        "rank": 3,
+        "off_item": 33,
+        "off_macro": "Travel & Transport",
+        "off_pop_pct": 0.999,
+        "on_item": 33,
+        "on_macro": "Travel & Transport",
+        "on_pop_pct": 0.999,
+        "changed": false
+      },
+      {
+        "rank": 4,
+        "off_item": 114,
+        "off_macro": "Travel & Transport",
+        "off_pop_pct": 1.0,
+        "on_item": 114,
+        "on_macro": "Travel & Transport",
+        "on_pop_pct": 1.0,
+        "changed": false
+      },
+      {
+        "rank": 5,
+        "off_item": 2190,
+        "off_macro": "Shop & Service",
+        "off_pop_pct": 0.994,
+        "on_item": 2190,
+        "on_macro": "Shop & Service",
+        "on_pop_pct": 0.994,
+        "changed": false
+      }
+    ],
+    "entries_lt_in_top20": [],
+    "n_swaps_top20": 0,
+    "explainee": {
+      "item": 151,
+      "rank_on": 1,
+      "macro": "Travel & Transport",
+      "score_base": 5.043,
+      "score_nudge": 0.0,
+      "score_total": 5.043,
+      "explanation_kind": "untouched_zero_nudge"
+    }
+  },
+  {
+    "id": 2,
+    "available": true,
+    "request": {
+      "u_idx": 1407,
+      "time_local": "2013-01-03 08:47:38",
+      "target_macro": "Travel & Transport",
+      "target_fine": "Train Station",
+      "is_core_sink": false
+    },
+    "top5": [
+      {
+        "rank": 1,
+        "off_item": 114,
+        "off_macro": "Travel & Transport",
+        "off_pop_pct": 1.0,
+        "on_item": 114,
+        "on_macro": "Travel & Transport",
+        "on_pop_pct": 1.0,
+        "changed": false
+      },
+      {
+        "rank": 2,
+        "off_item": 65,
+        "off_macro": "Travel & Transport",
+        "off_pop_pct": 0.999,
+        "on_item": 65,
+        "on_macro": "Travel & Transport",
+        "on_pop_pct": 0.999,
+        "changed": false
+      },
+      {
+        "rank": 3,
+        "off_item": 33,
+        "off_macro": "Travel & Transport",
+        "off_pop_pct": 0.999,
+        "on_item": 33,
+        "on_macro": "Travel & Transport",
+        "on_pop_pct": 0.999,
+        "changed": false
+      },
+      {
+        "rank": 4,
+        "off_item": 582,
+        "off_macro": "Travel & Transport",
+        "off_pop_pct": 0.959,
+        "on_item": 582,
+        "on_macro": "Travel & Transport",
+        "on_pop_pct": 0.959,
+        "changed": false
+      },
+      {
+        "rank": 5,
+        "off_item": 486,
+        "off_macro": "Shop & Service",
+        "off_pop_pct": 0.998,
+        "on_item": 486,
+        "on_macro": "Shop & Service",
+        "on_pop_pct": 0.998,
+        "changed": false
+      }
+    ],
+    "entries_lt_in_top20": [],
+    "n_swaps_top20": 0,
+    "explainee": {
+      "item": 114,
+      "rank_on": 1,
+      "macro": "Travel & Transport",
+      "score_base": 3.208,
+      "score_nudge": 0.0,
+      "score_total": 3.208,
+      "explanation_kind": "untouched_zero_nudge"
+    }
+  },
+  {
+    "id": 3,
+    "available": true,
+    "request": {
+      "u_idx": 908,
+      "time_local": "2013-02-05 21:37:19",
+      "target_macro": "Travel & Transport",
+      "target_fine": "Train Station",
+      "is_core_sink": false
+    },
+    "top5": [
+      {
+        "rank": 1,
+        "off_item": 2027,
+        "off_macro": "Travel & Transport",
+        "off_pop_pct": 0.92,
+        "on_item": 2027,
+        "on_macro": "Travel & Transport",
+        "on_pop_pct": 0.92,
+        "changed": false
+      },
+      {
+        "rank": 2,
+        "off_item": 1029,
+        "off_macro": "Shop & Service",
+        "off_pop_pct": 0.949,
+        "on_item": 1029,
+        "on_macro": "Shop & Service",
+        "on_pop_pct": 0.949,
+        "changed": false
+      },
+      {
+        "rank": 3,
+        "off_item": 149,
+        "off_macro": "Travel & Transport",
+        "off_pop_pct": 0.924,
+        "on_item": 149,
+        "on_macro": "Travel & Transport",
+        "on_pop_pct": 0.924,
+        "changed": false
+      },
+      {
+        "rank": 4,
+        "off_item": 268,
+        "off_macro": "Travel & Transport",
+        "off_pop_pct": 0.877,
+        "on_item": 268,
+        "on_macro": "Travel & Transport",
+        "on_pop_pct": 0.877,
+        "changed": false
+      },
+      {
+        "rank": 5,
+        "off_item": 1667,
+        "off_macro": "Travel & Transport",
+        "off_pop_pct": 0.882,
+        "on_item": 1667,
+        "on_macro": "Travel & Transport",
+        "on_pop_pct": 0.882,
+        "changed": false
+      }
+    ],
+    "entries_lt_in_top20": [],
+    "n_swaps_top20": 0,
+    "explainee": {
+      "item": 2027,
+      "rank_on": 1,
+      "macro": "Travel & Transport",
+      "score_base": 4.268,
+      "score_nudge": 0.0,
+      "score_total": 4.268,
+      "explanation_kind": "untouched_zero_nudge"
+    }
+  },
+  {
+    "id": 4,
+    "available": true,
+    "request": {
+      "u_idx": 34,
+      "time_local": "2012-08-20 17:30:17",
+      "target_macro": "Travel & Transport",
+      "target_fine": "Train Station",
+      "is_core_sink": true
+    },
+    "top5": [
+      {
+        "rank": 1,
+        "off_item": 84,
+        "off_macro": "Travel & Transport",
+        "off_pop_pct": 0.997,
+        "on_item": 1573,
+        "on_macro": "Travel & Transport",
+        "on_pop_pct": 0.746,
+        "changed": true
+      },
+      {
+        "rank": 2,
+        "off_item": 1161,
+        "off_macro": "Travel & Transport",
+        "off_pop_pct": 0.989,
+        "on_item": 1777,
+        "on_macro": "Travel & Transport",
+        "on_pop_pct": 0.766,
+        "changed": true
+      },
+      {
+        "rank": 3,
+        "off_item": 1211,
+        "off_macro": "Travel & Transport",
+        "off_pop_pct": 0.998,
+        "on_item": 84,
+        "on_macro": "Travel & Transport",
+        "on_pop_pct": 0.997,
+        "changed": true
+      },
+      {
+        "rank": 4,
+        "off_item": 140,
+        "off_macro": "Travel & Transport",
+        "off_pop_pct": 0.993,
+        "on_item": 535,
+        "on_macro": "Travel & Transport",
+        "on_pop_pct": 0.779,
+        "changed": true
+      },
+      {
+        "rank": 5,
+        "off_item": 1158,
+        "off_macro": "Travel & Transport",
+        "off_pop_pct": 0.993,
+        "on_item": 1161,
+        "on_macro": "Travel & Transport",
+        "on_pop_pct": 0.989,
+        "changed": true
+      }
+    ],
+    "entries_lt_in_top20": [
+      [
+        1,
+        1573
+      ],
+      [
+        2,
+        1777
+      ],
+      [
+        4,
+        535
+      ],
+      [
+        6,
+        1037
+      ],
+      [
+        8,
+        208
+      ],
+      [
+        9,
+        540
+      ],
+      [
+        10,
+        64
+      ],
+      [
+        11,
+        580
+      ],
+      [
+        12,
+        1943
+      ],
+      [
+        13,
+        666
+      ],
+      [
+        14,
+        741
+      ],
+      [
+        15,
+        315
+      ],
+      [
+        16,
+        585
+      ],
+      [
+        17,
+        571
+      ],
+      [
+        19,
+        1862
+      ],
+      [
+        20,
+        2249
+      ]
+    ],
+    "n_swaps_top20": 16,
+    "explainee": {
+      "item": 1573,
+      "rank_on": 1,
+      "macro": "Travel & Transport",
+      "score_base": 1.883,
+      "score_nudge": 2.0,
+      "score_total": 3.883,
+      "explanation_kind": "promoted_long_tail"
+    }
+  },
+  {
+    "id": 5,
+    "available": true,
+    "request": {
+      "u_idx": 34,
+      "time_local": "2012-09-06 13:58:36",
+      "target_macro": "Shop & Service",
+      "target_fine": "Miscellaneous Shop",
+      "is_core_sink": true
+    },
+    "top5": [
+      {
+        "rank": 1,
+        "off_item": 84,
+        "off_macro": "Travel & Transport",
+        "off_pop_pct": 0.997,
+        "on_item": 1573,
+        "on_macro": "Travel & Transport",
+        "on_pop_pct": 0.746,
+        "changed": true
+      },
+      {
+        "rank": 2,
+        "off_item": 1161,
+        "off_macro": "Travel & Transport",
+        "off_pop_pct": 0.989,
+        "on_item": 1777,
+        "on_macro": "Travel & Transport",
+        "on_pop_pct": 0.766,
+        "changed": true
+      },
+      {
+        "rank": 3,
+        "off_item": 1211,
+        "off_macro": "Travel & Transport",
+        "off_pop_pct": 0.998,
+        "on_item": 84,
+        "on_macro": "Travel & Transport",
+        "on_pop_pct": 0.997,
+        "changed": true
+      },
+      {
+        "rank": 4,
+        "off_item": 140,
+        "off_macro": "Travel & Transport",
+        "off_pop_pct": 0.993,
+        "on_item": 535,
+        "on_macro": "Travel & Transport",
+        "on_pop_pct": 0.779,
+        "changed": true
+      },
+      {
+        "rank": 5,
+        "off_item": 1158,
+        "off_macro": "Travel & Transport",
+        "off_pop_pct": 0.993,
+        "on_item": 1161,
+        "on_macro": "Travel & Transport",
+        "on_pop_pct": 0.989,
+        "changed": true
+      }
+    ],
+    "entries_lt_in_top20": [
+      [
+        1,
+        1573
+      ],
+      [
+        2,
+        1777
+      ],
+      [
+        4,
+        535
+      ],
+      [
+        6,
+        1037
+      ],
+      [
+        8,
+        208
+      ],
+      [
+        9,
+        540
+      ],
+      [
+        10,
+        64
+      ],
+      [
+        11,
+        580
+      ],
+      [
+        12,
+        1943
+      ],
+      [
+        13,
+        666
+      ],
+      [
+        14,
+        741
+      ],
+      [
+        15,
+        315
+      ],
+      [
+        16,
+        585
+      ],
+      [
+        17,
+        571
+      ],
+      [
+        19,
+        1862
+      ],
+      [
+        20,
+        2249
+      ]
+    ],
+    "n_swaps_top20": 16,
+    "explainee": {
+      "item": 1573,
+      "rank_on": 1,
+      "macro": "Travel & Transport",
+      "score_base": 1.883,
+      "score_nudge": 2.0,
+      "score_total": 3.883,
+      "explanation_kind": "promoted_long_tail"
+    }
+  }
+]

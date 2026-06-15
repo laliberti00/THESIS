@@ -1,0 +1,314 @@
+[
+  {
+    "id": 0,
+    "technical_name": "Weekday Afternoon \u00b7 Transit",
+    "readable_label": "Weekday hop",
+    "readable_source": "single_intent",
+    "time_token": "Weekday Afternoon",
+    "intent_token": "Transit",
+    "is_sink": false,
+    "stats": {
+      "freq_pct_of_test": 0.4108,
+      "n_test_in_situation": 13920,
+      "certainty_pct_core": 0.6897,
+      "kl": 0.0328,
+      "kl_vs_global": 0.272,
+      "lt_in_sit": 0.0405,
+      "global_lt": 0.0518,
+      "modal_hour": 18,
+      "weekend_share": 0.1428,
+      "pop_modal_hour": 18,
+      "pop_weekend_share": 0.3188,
+      "n_core_train": 76896,
+      "n_boundary_train": 32534
+    },
+    "intent_composition": [
+      {
+        "macro": "Travel & Transport",
+        "short": "Transit",
+        "score": 0.8890569689659852,
+        "is_attractor": true
+      },
+      {
+        "macro": "Shop & Service",
+        "short": "Shop",
+        "score": 0.11094303103401476,
+        "is_attractor": true
+      }
+    ],
+    "top3_target_macros": [
+      {
+        "macro": "Travel & Transport",
+        "share": 0.7747844827586207
+      },
+      {
+        "macro": "Shop & Service",
+        "share": 0.1060344827586207
+      },
+      {
+        "macro": "Arts & Entertainment",
+        "share": 0.032543103448275865
+      }
+    ]
+  },
+  {
+    "id": 1,
+    "technical_name": "Weekend Afternoon \u00b7 Transit",
+    "readable_label": "Weekend trip",
+    "readable_source": "single_intent",
+    "time_token": "Weekend Afternoon",
+    "intent_token": "Transit",
+    "is_sink": false,
+    "stats": {
+      "freq_pct_of_test": 0.1503,
+      "n_test_in_situation": 5094,
+      "certainty_pct_core": 0.4802,
+      "kl": 0.0724,
+      "kl_vs_global": 0.601,
+      "lt_in_sit": 0.0689,
+      "global_lt": 0.0518,
+      "modal_hour": 17,
+      "weekend_share": 0.8618,
+      "pop_modal_hour": 18,
+      "pop_weekend_share": 0.3188,
+      "n_core_train": 17220,
+      "n_boundary_train": 15860
+    },
+    "intent_composition": [
+      {
+        "macro": "Travel & Transport",
+        "short": "Transit",
+        "score": 0.7900018094501877,
+        "is_attractor": true
+      },
+      {
+        "macro": "Shop & Service",
+        "short": "Shop",
+        "score": 0.20999819054981222,
+        "is_attractor": true
+      }
+    ],
+    "top3_target_macros": [
+      {
+        "macro": "Travel & Transport",
+        "share": 0.43462897526501765
+      },
+      {
+        "macro": "Shop & Service",
+        "share": 0.24558303886925795
+      },
+      {
+        "macro": "Food",
+        "share": 0.09305064782096584
+      }
+    ]
+  },
+  {
+    "id": 2,
+    "technical_name": "Morning \u00b7 Transit (+Shop) @08h #2",
+    "readable_label": "Morning commute #2",
+    "readable_source": "single_intent+distinctness",
+    "time_token": "Morning",
+    "intent_token": "Transit",
+    "is_sink": false,
+    "stats": {
+      "freq_pct_of_test": 0.1872,
+      "n_test_in_situation": 6341,
+      "certainty_pct_core": 0.938,
+      "kl": 0.0419,
+      "kl_vs_global": 0.348,
+      "lt_in_sit": 0.0408,
+      "global_lt": 0.0518,
+      "modal_hour": 8,
+      "weekend_share": 0.1757,
+      "pop_modal_hour": 18,
+      "pop_weekend_share": 0.3188,
+      "n_core_train": 54999,
+      "n_boundary_train": 3147
+    },
+    "intent_composition": [
+      {
+        "macro": "Travel & Transport",
+        "short": "Transit",
+        "score": 0.8915379662453016,
+        "is_attractor": true
+      },
+      {
+        "macro": "Shop & Service",
+        "short": "Shop",
+        "score": 0.10846203375469847,
+        "is_attractor": true
+      }
+    ],
+    "top3_target_macros": [
+      {
+        "macro": "Travel & Transport",
+        "share": 0.9206749724018294
+      },
+      {
+        "macro": "Professional & Other Places",
+        "share": 0.02349787099826526
+      },
+      {
+        "macro": "Shop & Service",
+        "share": 0.014981864059296642
+      }
+    ]
+  },
+  {
+    "id": 3,
+    "technical_name": "Morning \u00b7 Transit (+Shop) @08h #3",
+    "readable_label": "Morning commute #3",
+    "readable_source": "single_intent+distinctness",
+    "time_token": "Morning",
+    "intent_token": "Transit",
+    "is_sink": false,
+    "stats": {
+      "freq_pct_of_test": 0.0687,
+      "n_test_in_situation": 2329,
+      "certainty_pct_core": 0.6827,
+      "kl": 0.0453,
+      "kl_vs_global": 0.376,
+      "lt_in_sit": 0.0528,
+      "global_lt": 0.0518,
+      "modal_hour": 8,
+      "weekend_share": 0.1778,
+      "pop_modal_hour": 18,
+      "pop_weekend_share": 0.3188,
+      "n_core_train": 12061,
+      "n_boundary_train": 4050
+    },
+    "intent_composition": [
+      {
+        "macro": "Travel & Transport",
+        "short": "Transit",
+        "score": 0.8037458685886495,
+        "is_attractor": true
+      },
+      {
+        "macro": "Shop & Service",
+        "short": "Shop",
+        "score": 0.1962541314113505,
+        "is_attractor": true
+      }
+    ],
+    "top3_target_macros": [
+      {
+        "macro": "Travel & Transport",
+        "share": 0.6492056676685273
+      },
+      {
+        "macro": "Shop & Service",
+        "share": 0.08802060970373551
+      },
+      {
+        "macro": "Food",
+        "share": 0.07556891369686561
+      }
+    ]
+  },
+  {
+    "id": 4,
+    "technical_name": "Afternoon \u00b7 Transit",
+    "readable_label": "Afternoon hop",
+    "readable_source": "single_intent",
+    "time_token": "Afternoon",
+    "intent_token": "Transit",
+    "is_sink": true,
+    "stats": {
+      "freq_pct_of_test": 0.1103,
+      "n_test_in_situation": 3736,
+      "certainty_pct_core": 0.9636,
+      "kl": 0.2043,
+      "kl_vs_global": 1.696,
+      "lt_in_sit": 0.0578,
+      "global_lt": 0.0518,
+      "modal_hour": 18,
+      "weekend_share": 0.3568,
+      "pop_modal_hour": 18,
+      "pop_weekend_share": 0.3188,
+      "n_core_train": 22254,
+      "n_boundary_train": 783
+    },
+    "intent_composition": [
+      {
+        "macro": "Travel & Transport",
+        "short": "Transit",
+        "score": 0.881913099876338,
+        "is_attractor": true
+      },
+      {
+        "macro": "Shop & Service",
+        "short": "Shop",
+        "score": 0.11808690012366194,
+        "is_attractor": true
+      }
+    ],
+    "top3_target_macros": [
+      {
+        "macro": "Travel & Transport",
+        "share": 0.7309957173447538
+      },
+      {
+        "macro": "Shop & Service",
+        "share": 0.12232334047109207
+      },
+      {
+        "macro": "Food",
+        "share": 0.05085653104925054
+      }
+    ]
+  },
+  {
+    "id": 5,
+    "technical_name": "Weekday Evening \u00b7 Transit",
+    "readable_label": "Weekday commute (PM)",
+    "readable_source": "single_intent",
+    "time_token": "Weekday Evening",
+    "intent_token": "Transit",
+    "is_sink": true,
+    "stats": {
+      "freq_pct_of_test": 0.0726,
+      "n_test_in_situation": 2461,
+      "certainty_pct_core": 0.6449,
+      "kl": 0.3259,
+      "kl_vs_global": 2.706,
+      "lt_in_sit": 0.0988,
+      "global_lt": 0.0518,
+      "modal_hour": 19,
+      "weekend_share": 0.0403,
+      "pop_modal_hour": 18,
+      "pop_weekend_share": 0.3188,
+      "n_core_train": 12360,
+      "n_boundary_train": 10005
+    },
+    "intent_composition": [
+      {
+        "macro": "Travel & Transport",
+        "short": "Transit",
+        "score": 0.7838939813086496,
+        "is_attractor": true
+      },
+      {
+        "macro": "Shop & Service",
+        "short": "Shop",
+        "score": 0.21610601869135038,
+        "is_attractor": true
+      }
+    ],
+    "top3_target_macros": [
+      {
+        "macro": "Travel & Transport",
+        "share": 0.37139374238114586
+      },
+      {
+        "macro": "Shop & Service",
+        "share": 0.28118650954896385
+      },
+      {
+        "macro": "Food",
+        "share": 0.13327915481511582
+      }
+    ]
+  }
+]

@@ -1,0 +1,562 @@
+[
+  {
+    "id": 0,
+    "technical_name": "Morning \u00b7 Outdoors (+Food) @08h #0",
+    "readable_label": "Morning stroll #0",
+    "readable_source": "single_intent+distinctness",
+    "time_token": "Morning",
+    "intent_token": "Outdoors",
+    "is_sink": false,
+    "stats": {
+      "freq_pct_of_test": 0.0485,
+      "n_test_in_situation": 214,
+      "certainty_pct_core": 0.8879,
+      "kl": 0.3507,
+      "kl_vs_global": 1.011,
+      "lt_in_sit": 0.1084,
+      "global_lt": 0.1119,
+      "modal_hour": 8,
+      "weekend_share": 0.25,
+      "pop_modal_hour": 18,
+      "pop_weekend_share": 0.3209,
+      "n_core_train": 1476,
+      "n_boundary_train": 128
+    },
+    "intent_composition": [
+      {
+        "macro": "Outdoors & Recreation",
+        "short": "Outdoors",
+        "score": 0.40943291763918227,
+        "is_attractor": true
+      },
+      {
+        "macro": "Food",
+        "short": "Food",
+        "score": 0.17281255795139955,
+        "is_attractor": true
+      },
+      {
+        "macro": "Shop & Service",
+        "short": "Shop",
+        "score": 0.17036931018304763,
+        "is_attractor": true
+      },
+      {
+        "macro": "Nightlife Spot",
+        "short": "Nightlife",
+        "score": 0.13124524886999195,
+        "is_attractor": true
+      },
+      {
+        "macro": "Arts & Entertainment",
+        "short": "Arts",
+        "score": 0.11613996535637862,
+        "is_attractor": true
+      }
+    ],
+    "top3_target_macros": [
+      {
+        "macro": "Outdoors & Recreation",
+        "share": 0.45794392523364486
+      },
+      {
+        "macro": "Travel & Transport",
+        "share": 0.3691588785046729
+      },
+      {
+        "macro": "Nightlife Spot",
+        "share": 0.06542056074766354
+      }
+    ]
+  },
+  {
+    "id": 1,
+    "technical_name": "Evening \u00b7 Mixed",
+    "readable_label": "",
+    "readable_source": "fallback",
+    "time_token": "Evening",
+    "intent_token": "Mixed",
+    "is_sink": false,
+    "stats": {
+      "freq_pct_of_test": 0.3016,
+      "n_test_in_situation": 1330,
+      "certainty_pct_core": 0.782,
+      "kl": 0.1315,
+      "kl_vs_global": 0.379,
+      "lt_in_sit": 0.1391,
+      "global_lt": 0.1119,
+      "modal_hour": 19,
+      "weekend_share": 0.3481,
+      "pop_modal_hour": 18,
+      "pop_weekend_share": 0.3209,
+      "n_core_train": 8620,
+      "n_boundary_train": 1662
+    },
+    "intent_composition": [
+      {
+        "macro": "Food",
+        "short": "Food",
+        "score": 0.23575248009290203,
+        "is_attractor": true
+      },
+      {
+        "macro": "Nightlife Spot",
+        "short": "Nightlife",
+        "score": 0.21391428431528192,
+        "is_attractor": true
+      },
+      {
+        "macro": "Outdoors & Recreation",
+        "short": "Outdoors",
+        "score": 0.2059622484490823,
+        "is_attractor": true
+      },
+      {
+        "macro": "Shop & Service",
+        "short": "Shop",
+        "score": 0.1930107473846495,
+        "is_attractor": true
+      },
+      {
+        "macro": "Arts & Entertainment",
+        "short": "Arts",
+        "score": 0.15136023975808424,
+        "is_attractor": true
+      }
+    ],
+    "top3_target_macros": [
+      {
+        "macro": "Nightlife Spot",
+        "share": 0.23759398496240602
+      },
+      {
+        "macro": "Food",
+        "share": 0.21578947368421053
+      },
+      {
+        "macro": "Arts & Entertainment",
+        "share": 0.1548872180451128
+      }
+    ]
+  },
+  {
+    "id": 2,
+    "technical_name": "Afternoon \u00b7 Outdoors",
+    "readable_label": "Afternoon stroll",
+    "readable_source": "single_intent",
+    "time_token": "Afternoon",
+    "intent_token": "Outdoors",
+    "is_sink": false,
+    "stats": {
+      "freq_pct_of_test": 0.1912,
+      "n_test_in_situation": 843,
+      "certainty_pct_core": 0.9063,
+      "kl": 0.2153,
+      "kl_vs_global": 0.621,
+      "lt_in_sit": 0.078,
+      "global_lt": 0.1119,
+      "modal_hour": 18,
+      "weekend_share": 0.3054,
+      "pop_modal_hour": 18,
+      "pop_weekend_share": 0.3209,
+      "n_core_train": 5757,
+      "n_boundary_train": 488
+    },
+    "intent_composition": [
+      {
+        "macro": "Outdoors & Recreation",
+        "short": "Outdoors",
+        "score": 0.3870690608271785,
+        "is_attractor": true
+      },
+      {
+        "macro": "Food",
+        "short": "Food",
+        "score": 0.1784607644697696,
+        "is_attractor": true
+      },
+      {
+        "macro": "Shop & Service",
+        "short": "Shop",
+        "score": 0.1757456001067046,
+        "is_attractor": true
+      },
+      {
+        "macro": "Nightlife Spot",
+        "short": "Nightlife",
+        "score": 0.1384044942227972,
+        "is_attractor": true
+      },
+      {
+        "macro": "Arts & Entertainment",
+        "short": "Arts",
+        "score": 0.12032008037355009,
+        "is_attractor": true
+      }
+    ],
+    "top3_target_macros": [
+      {
+        "macro": "Outdoors & Recreation",
+        "share": 0.30723606168446027
+      },
+      {
+        "macro": "Travel & Transport",
+        "share": 0.25029655990510086
+      },
+      {
+        "macro": "Shop & Service",
+        "share": 0.12811387900355872
+      }
+    ]
+  },
+  {
+    "id": 3,
+    "technical_name": "Afternoon \u00b7 Mixed (+Shop)",
+    "readable_label": "",
+    "readable_source": "fallback",
+    "time_token": "Afternoon",
+    "intent_token": "Mixed",
+    "is_sink": false,
+    "stats": {
+      "freq_pct_of_test": 0.1263,
+      "n_test_in_situation": 557,
+      "certainty_pct_core": 0.8384,
+      "kl": 0.0663,
+      "kl_vs_global": 0.191,
+      "lt_in_sit": 0.1094,
+      "global_lt": 0.1119,
+      "modal_hour": 18,
+      "weekend_share": 0.2883,
+      "pop_modal_hour": 18,
+      "pop_weekend_share": 0.3209,
+      "n_core_train": 3025,
+      "n_boundary_train": 424
+    },
+    "intent_composition": [
+      {
+        "macro": "Food",
+        "short": "Food",
+        "score": 0.22900915009492345,
+        "is_attractor": true
+      },
+      {
+        "macro": "Shop & Service",
+        "short": "Shop",
+        "score": 0.21903269573599365,
+        "is_attractor": true
+      },
+      {
+        "macro": "Outdoors & Recreation",
+        "short": "Outdoors",
+        "score": 0.205127055445416,
+        "is_attractor": true
+      },
+      {
+        "macro": "Nightlife Spot",
+        "short": "Nightlife",
+        "score": 0.19884875923597037,
+        "is_attractor": true
+      },
+      {
+        "macro": "Arts & Entertainment",
+        "short": "Arts",
+        "score": 0.14798233948769648,
+        "is_attractor": true
+      }
+    ],
+    "top3_target_macros": [
+      {
+        "macro": "Travel & Transport",
+        "share": 0.38420107719928187
+      },
+      {
+        "macro": "Food",
+        "share": 0.15798922800718132
+      },
+      {
+        "macro": "Shop & Service",
+        "share": 0.1490125673249551
+      }
+    ]
+  },
+  {
+    "id": 4,
+    "technical_name": "Morning \u00b7 Mixed (+Shop)",
+    "readable_label": "",
+    "readable_source": "fallback",
+    "time_token": "Morning",
+    "intent_token": "Mixed",
+    "is_sink": false,
+    "stats": {
+      "freq_pct_of_test": 0.1177,
+      "n_test_in_situation": 519,
+      "certainty_pct_core": 0.79,
+      "kl": 0.1026,
+      "kl_vs_global": 0.296,
+      "lt_in_sit": 0.1382,
+      "global_lt": 0.1119,
+      "modal_hour": 8,
+      "weekend_share": 0.3894,
+      "pop_modal_hour": 18,
+      "pop_weekend_share": 0.3209,
+      "n_core_train": 2663,
+      "n_boundary_train": 617
+    },
+    "intent_composition": [
+      {
+        "macro": "Food",
+        "short": "Food",
+        "score": 0.22923103687850527,
+        "is_attractor": true
+      },
+      {
+        "macro": "Shop & Service",
+        "short": "Shop",
+        "score": 0.21346982794749578,
+        "is_attractor": true
+      },
+      {
+        "macro": "Nightlife Spot",
+        "short": "Nightlife",
+        "score": 0.20569008197499958,
+        "is_attractor": true
+      },
+      {
+        "macro": "Outdoors & Recreation",
+        "short": "Outdoors",
+        "score": 0.20527127000713394,
+        "is_attractor": true
+      },
+      {
+        "macro": "Arts & Entertainment",
+        "short": "Arts",
+        "score": 0.14633778319186547,
+        "is_attractor": true
+      }
+    ],
+    "top3_target_macros": [
+      {
+        "macro": "Travel & Transport",
+        "share": 0.32947976878612717
+      },
+      {
+        "macro": "Nightlife Spot",
+        "share": 0.21965317919075145
+      },
+      {
+        "macro": "Food",
+        "share": 0.1579961464354528
+      }
+    ]
+  },
+  {
+    "id": 5,
+    "technical_name": "Afternoon \u00b7 Mixed (+Outdoors)",
+    "readable_label": "",
+    "readable_source": "fallback",
+    "time_token": "Afternoon",
+    "intent_token": "Mixed",
+    "is_sink": false,
+    "stats": {
+      "freq_pct_of_test": 0.1478,
+      "n_test_in_situation": 652,
+      "certainty_pct_core": 0.75,
+      "kl": 0.1239,
+      "kl_vs_global": 0.357,
+      "lt_in_sit": 0.0794,
+      "global_lt": 0.1119,
+      "modal_hour": 18,
+      "weekend_share": 0.3202,
+      "pop_modal_hour": 18,
+      "pop_weekend_share": 0.3209,
+      "n_core_train": 3754,
+      "n_boundary_train": 1154
+    },
+    "intent_composition": [
+      {
+        "macro": "Shop & Service",
+        "short": "Shop",
+        "score": 0.27364493664193745,
+        "is_attractor": true
+      },
+      {
+        "macro": "Outdoors & Recreation",
+        "short": "Outdoors",
+        "score": 0.21664719280098582,
+        "is_attractor": true
+      },
+      {
+        "macro": "Food",
+        "short": "Food",
+        "score": 0.21602056804996977,
+        "is_attractor": true
+      },
+      {
+        "macro": "Nightlife Spot",
+        "short": "Nightlife",
+        "score": 0.159578459701168,
+        "is_attractor": true
+      },
+      {
+        "macro": "Arts & Entertainment",
+        "short": "Arts",
+        "score": 0.13410884280593896,
+        "is_attractor": true
+      }
+    ],
+    "top3_target_macros": [
+      {
+        "macro": "Shop & Service",
+        "share": 0.3374233128834356
+      },
+      {
+        "macro": "Food",
+        "share": 0.17638036809815952
+      },
+      {
+        "macro": "Arts & Entertainment",
+        "share": 0.1303680981595092
+      }
+    ]
+  },
+  {
+    "id": 6,
+    "technical_name": "Morning \u00b7 Outdoors (+Food) @08h #6",
+    "readable_label": "Morning stroll #6",
+    "readable_source": "single_intent+distinctness",
+    "time_token": "Morning",
+    "intent_token": "Outdoors",
+    "is_sink": true,
+    "stats": {
+      "freq_pct_of_test": 0.0247,
+      "n_test_in_situation": 109,
+      "certainty_pct_core": 1.0,
+      "kl": 0.7913,
+      "kl_vs_global": 2.282,
+      "lt_in_sit": 0.1147,
+      "global_lt": 0.1119,
+      "modal_hour": 8,
+      "weekend_share": 0.253,
+      "pop_modal_hour": 18,
+      "pop_weekend_share": 0.3209,
+      "n_core_train": 585,
+      "n_boundary_train": 2
+    },
+    "intent_composition": [
+      {
+        "macro": "Outdoors & Recreation",
+        "short": "Outdoors",
+        "score": 0.3171968947170314,
+        "is_attractor": true
+      },
+      {
+        "macro": "Food",
+        "short": "Food",
+        "score": 0.19496707290214735,
+        "is_attractor": true
+      },
+      {
+        "macro": "Nightlife Spot",
+        "short": "Nightlife",
+        "score": 0.18967437384571872,
+        "is_attractor": true
+      },
+      {
+        "macro": "Shop & Service",
+        "short": "Shop",
+        "score": 0.1713065607134438,
+        "is_attractor": true
+      },
+      {
+        "macro": "Arts & Entertainment",
+        "short": "Arts",
+        "score": 0.1268550978216587,
+        "is_attractor": true
+      }
+    ],
+    "top3_target_macros": [
+      {
+        "macro": "Outdoors & Recreation",
+        "share": 0.41284403669724773
+      },
+      {
+        "macro": "Travel & Transport",
+        "share": 0.3486238532110092
+      },
+      {
+        "macro": "Arts & Entertainment",
+        "share": 0.07339449541284404
+      }
+    ]
+  },
+  {
+    "id": 7,
+    "technical_name": "Morning \u00b7 Mixed (+Outdoors)",
+    "readable_label": "",
+    "readable_source": "fallback",
+    "time_token": "Morning",
+    "intent_token": "Mixed",
+    "is_sink": true,
+    "stats": {
+      "freq_pct_of_test": 0.0422,
+      "n_test_in_situation": 186,
+      "certainty_pct_core": 1.0,
+      "kl": 0.9928,
+      "kl_vs_global": 2.863,
+      "lt_in_sit": 0.1207,
+      "global_lt": 0.1119,
+      "modal_hour": 8,
+      "weekend_share": 0.2025,
+      "pop_modal_hour": 18,
+      "pop_weekend_share": 0.3209,
+      "n_core_train": 1659,
+      "n_boundary_train": 0
+    },
+    "intent_composition": [
+      {
+        "macro": "Arts & Entertainment",
+        "short": "Arts",
+        "score": 0.0,
+        "is_attractor": true
+      },
+      {
+        "macro": "Food",
+        "short": "Food",
+        "score": 0.0,
+        "is_attractor": true
+      },
+      {
+        "macro": "Nightlife Spot",
+        "short": "Nightlife",
+        "score": 0.0,
+        "is_attractor": true
+      },
+      {
+        "macro": "Outdoors & Recreation",
+        "short": "Outdoors",
+        "score": 0.0,
+        "is_attractor": true
+      },
+      {
+        "macro": "Shop & Service",
+        "short": "Shop",
+        "score": 0.0,
+        "is_attractor": true
+      }
+    ],
+    "top3_target_macros": [
+      {
+        "macro": "Travel & Transport",
+        "share": 0.8064516129032258
+      },
+      {
+        "macro": "Outdoors & Recreation",
+        "share": 0.06451612903225806
+      },
+      {
+        "macro": "Arts & Entertainment",
+        "share": 0.043010752688172046
+      }
+    ]
+  }
+]

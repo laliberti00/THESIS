@@ -1,0 +1,696 @@
+[
+  {
+    "id": 0,
+    "available": true,
+    "request": {
+      "u_idx": 11,
+      "time_local": "2013-01-14 05:08:28",
+      "target_macro": "Outdoors & Recreation",
+      "target_fine": "Park",
+      "is_core_sink": false
+    },
+    "top5": [
+      {
+        "rank": 1,
+        "off_item": 682,
+        "off_macro": "Travel & Transport",
+        "off_pop_pct": 0.998,
+        "on_item": 682,
+        "on_macro": "Travel & Transport",
+        "on_pop_pct": 0.998,
+        "changed": false
+      },
+      {
+        "rank": 2,
+        "off_item": 265,
+        "off_macro": "Travel & Transport",
+        "off_pop_pct": 0.999,
+        "on_item": 265,
+        "on_macro": "Travel & Transport",
+        "on_pop_pct": 0.999,
+        "changed": false
+      },
+      {
+        "rank": 3,
+        "off_item": 229,
+        "off_macro": "Travel & Transport",
+        "off_pop_pct": 0.997,
+        "on_item": 229,
+        "on_macro": "Travel & Transport",
+        "on_pop_pct": 0.997,
+        "changed": false
+      },
+      {
+        "rank": 4,
+        "off_item": 158,
+        "off_macro": "Arts & Entertainment",
+        "off_pop_pct": 0.986,
+        "on_item": 158,
+        "on_macro": "Arts & Entertainment",
+        "on_pop_pct": 0.986,
+        "changed": false
+      },
+      {
+        "rank": 5,
+        "off_item": 313,
+        "off_macro": "Arts & Entertainment",
+        "off_pop_pct": 0.976,
+        "on_item": 313,
+        "on_macro": "Arts & Entertainment",
+        "on_pop_pct": 0.976,
+        "changed": false
+      }
+    ],
+    "entries_lt_in_top20": [],
+    "n_swaps_top20": 0,
+    "explainee": {
+      "item": 682,
+      "rank_on": 1,
+      "macro": "Travel & Transport",
+      "score_base": 3.054,
+      "score_nudge": 0.0,
+      "score_total": 3.054,
+      "explanation_kind": "untouched_zero_nudge"
+    }
+  },
+  {
+    "id": 1,
+    "available": true,
+    "request": {
+      "u_idx": 604,
+      "time_local": "2012-07-28 21:11:35",
+      "target_macro": "Travel & Transport",
+      "target_fine": "Bus Station",
+      "is_core_sink": false
+    },
+    "top5": [
+      {
+        "rank": 1,
+        "off_item": 444,
+        "off_macro": "Outdoors & Recreation",
+        "off_pop_pct": 0.97,
+        "on_item": 444,
+        "on_macro": "Outdoors & Recreation",
+        "on_pop_pct": 0.97,
+        "changed": false
+      },
+      {
+        "rank": 2,
+        "off_item": 229,
+        "off_macro": "Travel & Transport",
+        "off_pop_pct": 0.997,
+        "on_item": 229,
+        "on_macro": "Travel & Transport",
+        "on_pop_pct": 0.997,
+        "changed": false
+      },
+      {
+        "rank": 3,
+        "off_item": 408,
+        "off_macro": "Outdoors & Recreation",
+        "off_pop_pct": 0.978,
+        "on_item": 408,
+        "on_macro": "Outdoors & Recreation",
+        "on_pop_pct": 0.978,
+        "changed": false
+      },
+      {
+        "rank": 4,
+        "off_item": 236,
+        "off_macro": "Travel & Transport",
+        "off_pop_pct": 1.0,
+        "on_item": 236,
+        "on_macro": "Travel & Transport",
+        "on_pop_pct": 1.0,
+        "changed": false
+      },
+      {
+        "rank": 5,
+        "off_item": 389,
+        "off_macro": "Outdoors & Recreation",
+        "off_pop_pct": 0.977,
+        "on_item": 389,
+        "on_macro": "Outdoors & Recreation",
+        "on_pop_pct": 0.977,
+        "changed": false
+      }
+    ],
+    "entries_lt_in_top20": [],
+    "n_swaps_top20": 0,
+    "explainee": {
+      "item": 444,
+      "rank_on": 1,
+      "macro": "Outdoors & Recreation",
+      "score_base": 2.421,
+      "score_nudge": 0.0,
+      "score_total": 2.421,
+      "explanation_kind": "untouched_zero_nudge"
+    }
+  },
+  {
+    "id": 2,
+    "available": true,
+    "request": {
+      "u_idx": 571,
+      "time_local": "2012-06-06 18:09:31",
+      "target_macro": "College & University",
+      "target_fine": "University",
+      "is_core_sink": false
+    },
+    "top5": [
+      {
+        "rank": 1,
+        "off_item": 742,
+        "off_macro": "Travel & Transport",
+        "off_pop_pct": 0.946,
+        "on_item": 742,
+        "on_macro": "Travel & Transport",
+        "on_pop_pct": 0.946,
+        "changed": false
+      },
+      {
+        "rank": 2,
+        "off_item": 444,
+        "off_macro": "Outdoors & Recreation",
+        "off_pop_pct": 0.97,
+        "on_item": 444,
+        "on_macro": "Outdoors & Recreation",
+        "on_pop_pct": 0.97,
+        "changed": false
+      },
+      {
+        "rank": 3,
+        "off_item": 408,
+        "off_macro": "Outdoors & Recreation",
+        "off_pop_pct": 0.978,
+        "on_item": 408,
+        "on_macro": "Outdoors & Recreation",
+        "on_pop_pct": 0.978,
+        "changed": false
+      },
+      {
+        "rank": 4,
+        "off_item": 367,
+        "off_macro": "Travel & Transport",
+        "off_pop_pct": 0.994,
+        "on_item": 367,
+        "on_macro": "Travel & Transport",
+        "on_pop_pct": 0.994,
+        "changed": false
+      },
+      {
+        "rank": 5,
+        "off_item": 953,
+        "off_macro": "Arts & Entertainment",
+        "off_pop_pct": 0.967,
+        "on_item": 953,
+        "on_macro": "Arts & Entertainment",
+        "on_pop_pct": 0.967,
+        "changed": false
+      }
+    ],
+    "entries_lt_in_top20": [],
+    "n_swaps_top20": 0,
+    "explainee": {
+      "item": 742,
+      "rank_on": 1,
+      "macro": "Travel & Transport",
+      "score_base": 3.172,
+      "score_nudge": 0.0,
+      "score_total": 3.172,
+      "explanation_kind": "untouched_zero_nudge"
+    }
+  },
+  {
+    "id": 3,
+    "available": true,
+    "request": {
+      "u_idx": 358,
+      "time_local": "2012-11-12 15:53:44",
+      "target_macro": "Travel & Transport",
+      "target_fine": "Subway",
+      "is_core_sink": false
+    },
+    "top5": [
+      {
+        "rank": 1,
+        "off_item": 229,
+        "off_macro": "Travel & Transport",
+        "off_pop_pct": 0.997,
+        "on_item": 229,
+        "on_macro": "Travel & Transport",
+        "on_pop_pct": 0.997,
+        "changed": false
+      },
+      {
+        "rank": 2,
+        "off_item": 236,
+        "off_macro": "Travel & Transport",
+        "off_pop_pct": 1.0,
+        "on_item": 236,
+        "on_macro": "Travel & Transport",
+        "on_pop_pct": 1.0,
+        "changed": false
+      },
+      {
+        "rank": 3,
+        "off_item": 1068,
+        "off_macro": "Outdoors & Recreation",
+        "off_pop_pct": 0.971,
+        "on_item": 1068,
+        "on_macro": "Outdoors & Recreation",
+        "on_pop_pct": 0.971,
+        "changed": false
+      },
+      {
+        "rank": 4,
+        "off_item": 390,
+        "off_macro": "Outdoors & Recreation",
+        "off_pop_pct": 0.996,
+        "on_item": 390,
+        "on_macro": "Outdoors & Recreation",
+        "on_pop_pct": 0.996,
+        "changed": false
+      },
+      {
+        "rank": 5,
+        "off_item": 1055,
+        "off_macro": "Outdoors & Recreation",
+        "off_pop_pct": 0.952,
+        "on_item": 1055,
+        "on_macro": "Outdoors & Recreation",
+        "on_pop_pct": 0.952,
+        "changed": false
+      }
+    ],
+    "entries_lt_in_top20": [],
+    "n_swaps_top20": 0,
+    "explainee": {
+      "item": 229,
+      "rank_on": 1,
+      "macro": "Travel & Transport",
+      "score_base": 2.682,
+      "score_nudge": 0.0,
+      "score_total": 2.682,
+      "explanation_kind": "untouched_zero_nudge"
+    }
+  },
+  {
+    "id": 4,
+    "available": true,
+    "request": {
+      "u_idx": 372,
+      "time_local": "2013-01-16 08:03:46",
+      "target_macro": "Food",
+      "target_fine": "Sandwich Place",
+      "is_core_sink": false
+    },
+    "top5": [
+      {
+        "rank": 1,
+        "off_item": 313,
+        "off_macro": "Arts & Entertainment",
+        "off_pop_pct": 0.976,
+        "on_item": 313,
+        "on_macro": "Arts & Entertainment",
+        "on_pop_pct": 0.976,
+        "changed": false
+      },
+      {
+        "rank": 2,
+        "off_item": 174,
+        "off_macro": "Outdoors & Recreation",
+        "off_pop_pct": 0.985,
+        "on_item": 174,
+        "on_macro": "Outdoors & Recreation",
+        "on_pop_pct": 0.985,
+        "changed": false
+      },
+      {
+        "rank": 3,
+        "off_item": 159,
+        "off_macro": "Outdoors & Recreation",
+        "off_pop_pct": 0.988,
+        "on_item": 159,
+        "on_macro": "Outdoors & Recreation",
+        "on_pop_pct": 0.988,
+        "changed": false
+      },
+      {
+        "rank": 4,
+        "off_item": 607,
+        "off_macro": "Nightlife Spot",
+        "off_pop_pct": 0.945,
+        "on_item": 607,
+        "on_macro": "Nightlife Spot",
+        "on_pop_pct": 0.945,
+        "changed": false
+      },
+      {
+        "rank": 5,
+        "off_item": 169,
+        "off_macro": "Food",
+        "off_pop_pct": 0.964,
+        "on_item": 169,
+        "on_macro": "Food",
+        "on_pop_pct": 0.964,
+        "changed": false
+      }
+    ],
+    "entries_lt_in_top20": [],
+    "n_swaps_top20": 0,
+    "explainee": {
+      "item": 313,
+      "rank_on": 1,
+      "macro": "Arts & Entertainment",
+      "score_base": 2.303,
+      "score_nudge": 0.0,
+      "score_total": 2.303,
+      "explanation_kind": "untouched_zero_nudge"
+    }
+  },
+  {
+    "id": 5,
+    "available": true,
+    "request": {
+      "u_idx": 708,
+      "time_local": "2013-01-06 19:25:58",
+      "target_macro": "Food",
+      "target_fine": "Breakfast Spot",
+      "is_core_sink": false
+    },
+    "top5": [
+      {
+        "rank": 1,
+        "off_item": 159,
+        "off_macro": "Outdoors & Recreation",
+        "off_pop_pct": 0.988,
+        "on_item": 159,
+        "on_macro": "Outdoors & Recreation",
+        "on_pop_pct": 0.988,
+        "changed": false
+      },
+      {
+        "rank": 2,
+        "off_item": 229,
+        "off_macro": "Travel & Transport",
+        "off_pop_pct": 0.997,
+        "on_item": 229,
+        "on_macro": "Travel & Transport",
+        "on_pop_pct": 0.997,
+        "changed": false
+      },
+      {
+        "rank": 3,
+        "off_item": 390,
+        "off_macro": "Outdoors & Recreation",
+        "off_pop_pct": 0.996,
+        "on_item": 390,
+        "on_macro": "Outdoors & Recreation",
+        "on_pop_pct": 0.996,
+        "changed": false
+      },
+      {
+        "rank": 4,
+        "off_item": 157,
+        "off_macro": "Outdoors & Recreation",
+        "off_pop_pct": 0.982,
+        "on_item": 157,
+        "on_macro": "Outdoors & Recreation",
+        "on_pop_pct": 0.982,
+        "changed": false
+      },
+      {
+        "rank": 5,
+        "off_item": 404,
+        "off_macro": "Shop & Service",
+        "off_pop_pct": 0.959,
+        "on_item": 404,
+        "on_macro": "Shop & Service",
+        "on_pop_pct": 0.959,
+        "changed": false
+      }
+    ],
+    "entries_lt_in_top20": [],
+    "n_swaps_top20": 0,
+    "explainee": {
+      "item": 159,
+      "rank_on": 1,
+      "macro": "Outdoors & Recreation",
+      "score_base": 2.338,
+      "score_nudge": 0.0,
+      "score_total": 2.338,
+      "explanation_kind": "untouched_zero_nudge"
+    }
+  },
+  {
+    "id": 6,
+    "available": true,
+    "request": {
+      "u_idx": 353,
+      "time_local": "2012-08-22 12:08:30",
+      "target_macro": "Outdoors & Recreation",
+      "target_fine": "City",
+      "is_core_sink": true
+    },
+    "top5": [
+      {
+        "rank": 1,
+        "off_item": 308,
+        "off_macro": "Shop & Service",
+        "off_pop_pct": 0.925,
+        "on_item": 1049,
+        "on_macro": "Shop & Service",
+        "on_pop_pct": 0.771,
+        "changed": true
+      },
+      {
+        "rank": 2,
+        "off_item": 1026,
+        "off_macro": "Outdoors & Recreation",
+        "off_pop_pct": 0.891,
+        "on_item": 663,
+        "on_macro": "Outdoors & Recreation",
+        "on_pop_pct": 0.714,
+        "changed": true
+      },
+      {
+        "rank": 3,
+        "off_item": 1049,
+        "off_macro": "Shop & Service",
+        "off_pop_pct": 0.771,
+        "on_item": 800,
+        "on_macro": "Travel & Transport",
+        "on_pop_pct": 0.417,
+        "changed": true
+      },
+      {
+        "rank": 4,
+        "off_item": 545,
+        "off_macro": "Outdoors & Recreation",
+        "off_pop_pct": 0.918,
+        "on_item": 698,
+        "on_macro": "Travel & Transport",
+        "on_pop_pct": 0.721,
+        "changed": true
+      },
+      {
+        "rank": 5,
+        "off_item": 683,
+        "off_macro": "Outdoors & Recreation",
+        "off_pop_pct": 0.864,
+        "on_item": 1053,
+        "on_macro": "Outdoors & Recreation",
+        "on_pop_pct": 0.795,
+        "changed": true
+      }
+    ],
+    "entries_lt_in_top20": [
+      [
+        8,
+        821
+      ],
+      [
+        9,
+        1071
+      ],
+      [
+        10,
+        896
+      ],
+      [
+        12,
+        866
+      ],
+      [
+        13,
+        678
+      ],
+      [
+        14,
+        499
+      ],
+      [
+        15,
+        877
+      ],
+      [
+        16,
+        851
+      ],
+      [
+        17,
+        768
+      ],
+      [
+        18,
+        815
+      ],
+      [
+        19,
+        368
+      ],
+      [
+        20,
+        652
+      ]
+    ],
+    "n_swaps_top20": 12,
+    "explainee": {
+      "item": 821,
+      "rank_on": 8,
+      "macro": "Travel & Transport",
+      "score_base": 2.007,
+      "score_nudge": 1.0,
+      "score_total": 3.007,
+      "explanation_kind": "promoted_long_tail"
+    }
+  },
+  {
+    "id": 7,
+    "available": true,
+    "request": {
+      "u_idx": 234,
+      "time_local": "2012-12-27 19:53:52",
+      "target_macro": "Travel & Transport",
+      "target_fine": "Subway",
+      "is_core_sink": true
+    },
+    "top5": [
+      {
+        "rank": 1,
+        "off_item": 390,
+        "off_macro": "Outdoors & Recreation",
+        "off_pop_pct": 0.996,
+        "on_item": 1036,
+        "on_macro": "Shop & Service",
+        "on_pop_pct": 0.788,
+        "changed": true
+      },
+      {
+        "rank": 2,
+        "off_item": 742,
+        "off_macro": "Travel & Transport",
+        "off_pop_pct": 0.946,
+        "on_item": 1049,
+        "on_macro": "Shop & Service",
+        "on_pop_pct": 0.771,
+        "changed": true
+      },
+      {
+        "rank": 3,
+        "off_item": 1068,
+        "off_macro": "Outdoors & Recreation",
+        "off_pop_pct": 0.971,
+        "on_item": 698,
+        "on_macro": "Travel & Transport",
+        "on_pop_pct": 0.721,
+        "changed": true
+      },
+      {
+        "rank": 4,
+        "off_item": 554,
+        "off_macro": "Travel & Transport",
+        "off_pop_pct": 0.983,
+        "on_item": 854,
+        "on_macro": "Outdoors & Recreation",
+        "on_pop_pct": 0.766,
+        "changed": true
+      },
+      {
+        "rank": 5,
+        "off_item": 1058,
+        "off_macro": "Food",
+        "off_pop_pct": 0.961,
+        "on_item": 390,
+        "on_macro": "Outdoors & Recreation",
+        "on_pop_pct": 0.996,
+        "changed": true
+      }
+    ],
+    "entries_lt_in_top20": [
+      [
+        2,
+        1049
+      ],
+      [
+        3,
+        698
+      ],
+      [
+        4,
+        854
+      ],
+      [
+        6,
+        1053
+      ],
+      [
+        7,
+        760
+      ],
+      [
+        8,
+        717
+      ],
+      [
+        11,
+        1057
+      ],
+      [
+        12,
+        1061
+      ],
+      [
+        14,
+        911
+      ],
+      [
+        15,
+        1071
+      ],
+      [
+        16,
+        744
+      ],
+      [
+        17,
+        896
+      ],
+      [
+        19,
+        663
+      ]
+    ],
+    "n_swaps_top20": 13,
+    "explainee": {
+      "item": 1049,
+      "rank_on": 2,
+      "macro": "Shop & Service",
+      "score_base": 1.882,
+      "score_nudge": 1.0,
+      "score_total": 2.882,
+      "explanation_kind": "promoted_long_tail"
+    }
+  }
+]
