@@ -975,6 +975,114 @@ ablations.
 * `outputs/round3/C5/per_request/TKY_M_*.npz` (per-request hit arrays
   saved by the re-run of `experiments/round3_c5_bfull_ablation.py`)
 
+## B10 — Stat-validation closure (permutation test + family summary)
+
+Closes the audit's HIGH item 2.4 (B6 permutation) and trivially-cheap
+MED items 2.3 (B7 ratio CI), 2.5 (B8b Wilson CI), 2.7 (C2 / Stage-C
+McNemar). Most importantly, ships
+**`STATISTICAL_VALIDATION_SUMMARY.md`** — the paper-ready enumeration
+of every stat test family with within-family correction, plus the
+explicit cross-family policy + the deterministic-verifications section
+that pre-empts the "you ran many tests" critique.
+
+### B10.1 — Permutation test for B6 (lens backbone-agnostic)
+
+Null: each model independently relabels its sinks by drawing |sinks|
+values uniformly at random from {0..K_sit−1}. Random model is excluded
+(it flags ∅ — negative control, not part of the agreement family).
+Statistic = mean pairwise Jaccard across the 7 non-Random models'
+sink sets. 10 000 permutations, seed = 13.
+
+| city | K_sit | observed | null mean | null p99 | p (one-sided) |
+|---|---:|---|---|---|---|
+| NYC | 8 | **1.000** | 0.125 | 0.333 | **0.0001** (0/10 000 null ≥ observed) |
+| TKY | 6 | **0.857** | 0.221 | 0.389 | **0.0001** (0/10 000 null ≥ observed) |
+
+Both p-values bottom out at the resolution of n_perm. The "lens flags
+the same sinks across recommenders by chance" null is *strictly*
+rejected on both cities — the agreement is structural.
+
+### B10.3a — B7 disc/flat ratio CI95
+
+Paired bootstrap on per-request `(disc_LT@20_on − disc_LT@20_off) /
+(flat_LT@20_on − flat_LT@20_off)` over the touched subset, B = 10 000.
+
+| city | ratio (point) | CI95 | brackets 1 ? |
+|---|---|---|---|
+| NYC | 1.024 | [1.014, 1.034] | **No — strictly > 1** |
+| TKY | 0.964 | [0.962, 0.966] | **No — strictly < 1 by ~3 %** |
+
+NYC: the discounted gain *exceeds* the flat gain (the long-tail items
+X-SAGE lifts on NYC sit at higher-than-uniform ranks, so the rank-
+weighted exposure delta is strictly larger than the count delta). TKY:
+discounted gain retains 96 % of the flat gain at a very tight CI —
+quantitatively position-robust but not literally bracket-1.
+
+### B10.3b — B8b name-stability Wilson CI95
+
+Binomial Wilson intervals on the cross-seed (3 alt seeds × K
+situations) match counts.
+
+| city | tier | matches / trials | rate | CI95 |
+|---|---|---|---|---|
+| NYC | strict | 9 / 24 | 0.375 | [0.212, 0.573] |
+| NYC | **intent (base)** | 22 / 24 | **0.917** | **[0.742, 0.977]** |
+| NYC | time-band | 21 / 24 | 0.875 | [0.690, 0.957] |
+| TKY | strict | 1 / 18 | 0.056 | [0.010, 0.258] |
+| TKY | **intent (base)** | 18 / 18 | **1.000** | **[0.824, 1.000]** |
+| TKY | time-band | 12 / 18 | 0.667 | [0.437, 0.837] |
+
+The "92 % NYC / 100 % TKY intent stability" headlines from B8b now
+carry Wilson CI95 [0.74, 0.98] / [0.82, 1.00] — properly bounded.
+
+### B10.3c — Stage-C / C2 McNemar (collected from existing verdicts)
+
+| config | ΔF1 | T-only-correct | time-only-correct | McNemar p |
+|---|---|---:|---:|---|
+| NYC keep | **+0.171** | 1 203 | 826 | **1.1 × 10⁻¹⁶** ✅ |
+| NYC mask | +0.176 | 927 | 1 012 | 5.6 × 10⁻² (marginal) |
+| TKY keep | −0.041 | 1 591 | 9 625 | 0.0 (time-only wins strongly) |
+| TKY mask | +0.006 | 6 776 | 8 984 | 0.0 (time-only still wins paired) |
+
+**Honest paradox to report.** On TKY mask and NYC mask, the *aggregate
+macro-F1* favours the T-based projection (ΔF1 positive), while McNemar
+on uniquely-correct cases favours the *time-only* baseline. This is a
+known phenomenon: macro-F1 rewards class coverage (T-based predicts
+more classes correctly), McNemar tests per-instance pair pattern
+(time-only is uniquely correct on more individual requests). The two
+disagree by construction when T-based concentrates wins on rare
+classes. Recommendation for the paper: **report BOTH numbers**, do not
+pick one. The original "mask recovers TKY projection" claim (B8/C2)
+holds at macro-F1; at paired McNemar, time-only is still the better
+per-request predictor on TKY.
+
+### B10.2 — Statistical-validation family summary
+
+Ships `STATISTICAL_VALIDATION_SUMMARY.md` (and a parallel `.csv`)
+covering **every** stat-test family in the round: A4 TOST + Wilcoxon
++ bootstrap, B7b paired CI, B9.1 per-macro Holm, B9.2 ablation Holm,
+B10.1 permutation, B10.3a–c ratio / Wilson / McNemar. Includes:
+
+* §1 the table (20 rows: family × city × headline + p / CI);
+* §2 **cross-family policy**: no cross-family correction (each family
+  tests a distinct hypothesis; Rubin 2017 rationale; transparency-of-
+  inventory replaces blanket correction);
+* §3 **deterministic verifications NOT statistical tests** —
+  matched-OFF identity, B5 touched-share identity, B8.3 faithfulness
+  (0/76 934 violations), A1/A1bis val=test exact match, C6 R8 pre-
+  registration outcomes. *These correctly carry no p-value.* Critical
+  framing point so a reviewer doesn't mistake a deterministic 100 %
+  for an unsupported statistical claim.
+
+This document is **paper-ready** — the §"Statistical validation"
+subsection of the paper can lift it almost verbatim.
+
+### Outputs (B10)
+
+* `outputs/round3/B10/{b6_permutation.json, b7_ratio_ci.json, b8b_wilson_ci.json, c2_mcnemar.json}`
+* `STATISTICAL_VALIDATION_SUMMARY.md` (paper-ready)
+* `STATISTICAL_VALIDATION_SUMMARY.csv` (machine-readable enumeration)
+
 ## Session-3 master decision table
 
 | Task | Verdict | Headline | Paper decision |
@@ -992,6 +1100,9 @@ ablations.
 | B8b   | robust intent token (gap rule, τ_dom=0.10) | intent stability NYC 38 %→**92 %**, TKY 25 %→**100 %**; TKY's perfect stability *is* the structural-poverty evidence (all clusters → Transit) | **main** (replaces B8 naming layer; faithfulness unchanged) |
 | B9.1  | C5.0/C6 Holm-confirmed | T&T harm p_Holm 3.9 × 10⁻¹³ on TKY / 2.5 × 10⁻⁶ on TKY_BAL; non-T&T help p_Holm 1.0 × 10⁻⁷ on NYC / 8.2 × 10⁻³ on TKY_BAL; Wald CI from per-stratum reconstructs aggregate CI to 5 decimals | **MAIN headline** (causal law statistically hardened) |
 | B9.2  | C5 ablation all-reject | 5/5 variants Holm-reject H₀ vs B_blind at α=0.05; best (M_minus_geo) still p_Holm 8.0 × 10⁻⁶ | **main** (TKY narrative paragraph now Holm-controlled) |
+| B10.1 | lens permutation p ≪ 0.001 | NYC observed 1.00 / null 0.13, TKY observed 0.86 / null 0.22; both p = 1.0 × 10⁻⁴ at 10 000 perms | **main** (hardens B6 backbone-agnostic claim) |
+| B10.3 | trivial closures | B7 ratio CI strictly > 1 on NYC / < 1 by 3 % on TKY; B8b Wilson CI [0.74, 0.98] NYC intent; Stage-C McNemar collected (paradox flagged) | **main** (interval forms of B7/B8b headlines + honest McNemar/F1 paradox) |
+| B10.2 | family summary | every stat family enumerated with within-family correction; cross-family policy stated; deterministic verifications listed separately | **MAIN deliverable** (`STATISTICAL_VALIDATION_SUMMARY.md` — paper-ready) |
 | B2    | not run this session | — | deferred to session 4 |
 
 ## "What changed for the paper" (session 3)

@@ -51,12 +51,20 @@ These are claims in `ROUND3_REPORT.md` that would benefit from
 *explicit* significance numbers. Each is a < 30-line code add; nothing
 requires retraining.
 
-> **Status update (2026-06-14).** Items 2.1 (C5 ablation) and 2.2 (C6
-> per-macro + propagated CI) — both **HIGH** — are **CLOSED** by B9
-> (`experiments/round3_b9_stat_hardening.py`,
-> `outputs/round3/B9/{c50_paired_holm.json, c6_pivot_paired.json,
-> c5_paired_holm.json, summary.md}`). See `ROUND3_REPORT.md` § B9 for
-> the Holm-controlled tables. Remaining gaps: 2.3–2.7 (MED/LOW).
+> **Status update (2026-06-14, B9).** Items 2.1 (C5 ablation) and 2.2
+> (C6 per-macro + propagated CI) — both **HIGH** — are **CLOSED** by
+> B9 (`experiments/round3_b9_stat_hardening.py`,
+> `outputs/round3/B9/…`). See `ROUND3_REPORT.md` § B9.
+>
+> **Status update (2026-06-14, B10).** Items 2.3 (B7 ratio CI), 2.4
+> (B6 permutation), 2.5 (B8b name-stability Wilson), 2.7 (C2 / Stage-C
+> McNemar) — **all CLOSED** by B10
+> (`experiments/round3_b10_stat_closure.py`,
+> `outputs/round3/B10/…`, paper-ready
+> `STATISTICAL_VALIDATION_SUMMARY.md`). Item 2.6 (B7 global ΔR@5 CI)
+> remains DEFERRED — low priority and the global delta is already a
+> known ~0 with negligible practical impact. **The audit is complete
+> apart from this LOW deferral.**
 
 ### 2.1 (HIGH priority) [**CLOSED — B9.2**] C5 ablation — paired tests on per-request deltas
 
