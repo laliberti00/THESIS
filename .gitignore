@@ -50,6 +50,15 @@ data/processed/*
 outputs/*
 !outputs/.gitkeep
 
+# --- Multi-city workspace (round 4) ---------------------------------------
+# Per-city raw extracts from TIST2015 (large, derivable from data/raw/) and
+# per-city pipeline outputs. Tracked artefacts (small CSVs / .md summaries)
+# are force-added per commit.
+data/raw_tist/*
+!data/raw_tist/.gitkeep
+outputs_multicity/*
+!outputs_multicity/.gitkeep
+
 # Misc
 *.tmp
 *.bak
