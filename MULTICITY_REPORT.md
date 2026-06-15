@@ -229,9 +229,13 @@ cd /Users/lucaaliberti/Downloads/IntentAwareRS_thesis
     --cities all --stages all
 
 # Recommended FIRST pass — only structural stages (no backbones training),
-# completes in ~30 min, lets you sanity-check the law before committing:
+# completes in ~15 min, runs Stage A + Stage C (Stage B needs backbones):
 .venv/bin/python -m experiments.multicity.run_multicity \
-    --cities all --stages step01,stageA,stageB,stageC
+    --cities all --stages step01,stageA,stageC
+
+# Then add Stage B / D after running backbones (heavy step):
+.venv/bin/python -m experiments.multicity.run_multicity \
+    --cities all --stages backbones,stageB
 ```
 
 Logs land in `outputs_multicity/logs/run_<timestamp>.log` (also tee'd

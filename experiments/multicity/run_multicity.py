@@ -335,6 +335,20 @@ def stage_xsage(city: str, stage_letter: str, args,
     if is_done(city, stage_key) and not args.force:
         logger.info(f"[{city}] {stage_key} already done — skipping")
         return "skipped"
+    # Stages B and D require the floor FM scores (Stage A and C do not).
+    # If backbones hasn't run for this city, fail fast with a clear message
+    # rather than waiting on subprocess startup just to see FileNotFoundError.
+    if stage_letter in ("B", "D"):
+        fm_hp = (REPO_ROOT / "outputs" / city / "baselines"
+                  / "FM.best_hp.json")
+        if not fm_hp.exists():
+            logger.error(
+                f"[{city}] {stage_key}: missing {fm_hp}. "
+                f"Stage {stage_letter} requires backbones — run "
+                f"`--stages backbones,{stage_key}` first."
+            )
+            write_fail(city, stage_key, "missing FM.best_hp.json (run backbones)")
+            return "failed"
     t0 = time.time()
     rc = _run_xsage_stage(city, stage_letter, args, logger)
     if rc != 0:
@@ -463,6 +477,20 @@ def main() -> int:
                        f"(expected_users={CITIES[c].get('expected_users', '?')})")
     logger.info(f"--force: {args.force}  --smoke: {args.smoke}  "
                   f"seed: {args.seed}")
+    # Up-front dependency check: stages B and D need backbones output.
+    if ("stageB" in stages or "stageD" in stages) and "backbones" not in stages:
+        missing = []
+        for c in cities:
+            hp = REPO_ROOT / "outputs" / c / "baselines" / "FM.best_hp.json"
+            if not hp.exists():
+                missing.append(c)
+        if missing:
+            logger.warning(
+                f"!! Stage B/D requested without `backbones` AND no "
+                f"floor-FM artefact yet for: {missing}. "
+                f"Those stages will FAIL. Either add 'backbones' to "
+                f"--stages, or run `--stages backbones` first."
+            )
     logger.info(f"================================================")
 
     # Carve phase (global one-pass, only if requested AND not smoke)

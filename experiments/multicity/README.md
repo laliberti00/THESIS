@@ -106,18 +106,31 @@ Reference (5 cities, all stages):
 | nyc_tist   | 4 113  | ~20–30 min |
 | **total**  |        | **~4.5–6 h** |
 
-Most of the time goes to B_full BPR training (`backbones`); Stage A/B/C
-are cheap. If you want a fast initial pass, run only the structural
-stages first:
+Most of the time goes to B_full BPR training (`backbones`); Stage A/C
+are cheap. **NOTE on dependencies**: Stage B (fairness lens) and Stage
+D (three-way) both need the floor FM scores from `backbones` — they
+read `outputs/<city>/baselines/FM.best_hp.json`. Stage A and Stage C
+do NOT need backbones (only step01).
+
+Fast structural-only pass (no backbones training, ~15 min on all 5
+cities — completes Stage A and Stage C; skips Stage B):
 
 ```bash
 .venv/bin/python -m experiments.multicity.run_multicity \
-    --cities all --stages step01,stageA,stageB,stageC
+    --cities all --stages step01,stageA,stageC
 ```
 
-That finishes in ~30 min, gives you attractors / sinks / projection
-F1, lets you sanity-check the law's predictions before committing to
-the full backbones run.
+To add Stage B / D afterwards (requires backbones — adds ~1–2 h per
+city on the bigger ones):
+
+```bash
+.venv/bin/python -m experiments.multicity.run_multicity \
+    --cities all --stages backbones,stageB
+```
+
+The orchestrator now warns up front if you request Stage B/D without
+backbones AND the floor-FM artefact isn't on disk, so you don't waste
+a run.
 
 ## Round-3 isolation
 
