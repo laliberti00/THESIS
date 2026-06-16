@@ -1,0 +1,21 @@
+{
+  "city": "istanbul",
+  "K_sit": 8,
+  "n_test": 136220,
+  "n_boundary": 29081,
+  "boundary_share": 0.21348553810013213,
+  "recognition_F1_boundary_before": 0.36872345724135636,
+  "recognition_F1_boundary_after": 0.5616554350508296,
+  "delta_F1_boundary": 0.19293197780947324,
+  "boundary_acc_before": 0.45558956019394103,
+  "boundary_acc_after": 0.5680684983322444,
+  "macro_F1_all_before": 0.8770396652389498,
+  "macro_F1_all_after": 0.9051665062324159,
+  "do_no_harm_delta": 0.028126840993466073,
+  "future_pred_delta_F1": 0.10039146563276406,
+  "future_pred_mcnemar_T_correct": 21137,
+  "future_pred_mcnemar_time_correct": 20307,
+  "future_pred_mcnemar_p": 4.658129381329701e-05,
+  "future_pred_macro_F1_favors_T": true,
+  "future_pred_mcnemar_favors_T": true
+}

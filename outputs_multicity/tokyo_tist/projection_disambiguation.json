@@ -1,0 +1,21 @@
+{
+  "city": "tokyo_tist",
+  "K_sit": 4,
+  "n_test": 59561,
+  "n_boundary": 8816,
+  "boundary_share": 0.1480163194036366,
+  "recognition_F1_boundary_before": 0.5316340686301207,
+  "recognition_F1_boundary_after": 0.6483683943346009,
+  "delta_F1_boundary": 0.11673432570448017,
+  "boundary_acc_before": 0.6969147005444646,
+  "boundary_acc_after": 0.7933303085299456,
+  "macro_F1_all_before": 0.9339988908130129,
+  "macro_F1_all_after": 0.9578761062407011,
+  "do_no_harm_delta": 0.02387721542768817,
+  "future_pred_delta_F1": -0.08264005645493172,
+  "future_pred_mcnemar_T_correct": 11866,
+  "future_pred_mcnemar_time_correct": 17416,
+  "future_pred_mcnemar_p": 0.0,
+  "future_pred_macro_F1_favors_T": false,
+  "future_pred_mcnemar_favors_T": false
+}

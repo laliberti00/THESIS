@@ -1,0 +1,21 @@
+{
+  "city": "nyc_tist",
+  "K_sit": 6,
+  "n_test": 17702,
+  "n_boundary": 3839,
+  "boundary_share": 0.2168681504914699,
+  "recognition_F1_boundary_before": 0.3792286132404443,
+  "recognition_F1_boundary_after": 0.5268551881927485,
+  "delta_F1_boundary": 0.14762657495230413,
+  "boundary_acc_before": 0.43058088043761394,
+  "boundary_acc_after": 0.5965095076842928,
+  "macro_F1_all_before": 0.8646293296874398,
+  "macro_F1_all_after": 0.8971061034792148,
+  "do_no_harm_delta": 0.03247677379177505,
+  "future_pred_delta_F1": 0.06546910795091185,
+  "future_pred_mcnemar_T_correct": 3334,
+  "future_pred_mcnemar_time_correct": 4144,
+  "future_pred_mcnemar_p": 0.0,
+  "future_pred_macro_F1_favors_T": true,
+  "future_pred_mcnemar_favors_T": false
+}

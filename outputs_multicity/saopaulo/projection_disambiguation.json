@@ -1,0 +1,21 @@
+{
+  "city": "saopaulo",
+  "K_sit": 8,
+  "n_test": 23821,
+  "n_boundary": 3727,
+  "boundary_share": 0.15645858696108475,
+  "recognition_F1_boundary_before": 0.4238956098178447,
+  "recognition_F1_boundary_after": 0.5627336694042333,
+  "delta_F1_boundary": 0.13883805958638862,
+  "boundary_acc_before": 0.4800107324926214,
+  "boundary_acc_after": 0.624631070566139,
+  "macro_F1_all_before": 0.9217803201495787,
+  "macro_F1_all_after": 0.9426514983403587,
+  "do_no_harm_delta": 0.020871178190779993,
+  "future_pred_delta_F1": 0.06115964262407336,
+  "future_pred_mcnemar_T_correct": 3769,
+  "future_pred_mcnemar_time_correct": 4883,
+  "future_pred_mcnemar_p": 0.0,
+  "future_pred_macro_F1_favors_T": true,
+  "future_pred_mcnemar_favors_T": false
+}

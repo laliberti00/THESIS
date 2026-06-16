@@ -1,0 +1,83 @@
+{
+  "identity_check": [
+    {
+      "city": "istanbul",
+      "B_blind_R20": 0.0846421951904925,
+      "X-SAGE_k0_R20": 0.0846421951904925,
+      "delta_R20": 0.0,
+      "delta_N20": 0.0,
+      "identity_holds": true
+    },
+    {
+      "city": "bangkok",
+      "B_blind_R20": 0.0923400980079859,
+      "X-SAGE_k0_R20": 0.0923400980079859,
+      "delta_R20": 0.0,
+      "delta_N20": 0.0,
+      "identity_holds": true
+    },
+    {
+      "city": "nyc_tist",
+      "B_blind_R20": 0.09087472090217,
+      "X-SAGE_k0_R20": 0.09087472090217,
+      "delta_R20": 0.0,
+      "delta_N20": 0.0,
+      "identity_holds": true
+    },
+    {
+      "city": "saopaulo",
+      "B_blind_R20": 0.0893559397420347,
+      "X-SAGE_k0_R20": 0.0893559397420347,
+      "delta_R20": 0.0,
+      "delta_N20": 0.0,
+      "identity_holds": true
+    },
+    {
+      "city": "tokyo_tist",
+      "B_blind_R20": 0.0747218490275195,
+      "X-SAGE_k0_R20": 0.0747218490275195,
+      "delta_R20": 0.0,
+      "delta_N20": 0.0,
+      "identity_holds": true
+    }
+  ],
+  "lt_match_tolerance": [
+    {
+      "city": "istanbul",
+      "kappa_global_matched": 0.5,
+      "LT_xsage": 0.027194976806640625,
+      "LT_global_matched": 0.029179636389017105,
+      "abs_tol": 0.00198465958237648
+    },
+    {
+      "city": "bangkok",
+      "kappa_global_matched": 0.15,
+      "LT_xsage": 0.04326154664158821,
+      "LT_global_matched": 0.04564468935132027,
+      "abs_tol": 0.0023831427097320557
+    },
+    {
+      "city": "nyc_tist",
+      "kappa_global_matched": 0.15,
+      "LT_xsage": 0.10913456231355667,
+      "LT_global_matched": 0.11705457419157028,
+      "abs_tol": 0.00792001187801361
+    },
+    {
+      "city": "saopaulo",
+      "kappa_global_matched": 0.03,
+      "LT_xsage": 0.06942614167928696,
+      "LT_global_matched": 0.07095839828252792,
+      "abs_tol": 0.0015322566032409668
+    },
+    {
+      "city": "tokyo_tist",
+      "kappa_global_matched": null,
+      "LT_xsage": 0.023279493674635887,
+      "LT_global_matched": null,
+      "abs_tol": null
+    }
+  ],
+  "n_pass": 5,
+  "n_total": 5
+}

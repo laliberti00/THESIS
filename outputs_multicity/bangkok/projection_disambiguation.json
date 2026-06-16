@@ -1,0 +1,21 @@
+{
+  "city": "bangkok",
+  "K_sit": 4,
+  "n_test": 43556,
+  "n_boundary": 10093,
+  "boundary_share": 0.2317246762788135,
+  "recognition_F1_boundary_before": 0.2625637937419598,
+  "recognition_F1_boundary_after": 0.688462431262743,
+  "delta_F1_boundary": 0.42589863752078316,
+  "boundary_acc_before": 0.38363222035073813,
+  "boundary_acc_after": 0.8064995541464381,
+  "macro_F1_all_before": 0.8678070632803294,
+  "macro_F1_all_after": 0.9505659250546346,
+  "do_no_harm_delta": 0.08275886177430514,
+  "future_pred_delta_F1": -0.0874243812312997,
+  "future_pred_mcnemar_T_correct": 5707,
+  "future_pred_mcnemar_time_correct": 10114,
+  "future_pred_mcnemar_p": 0.0,
+  "future_pred_macro_F1_favors_T": false,
+  "future_pred_mcnemar_favors_T": false
+}
